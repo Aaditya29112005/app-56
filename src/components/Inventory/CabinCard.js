@@ -7,7 +7,7 @@ import CabinStatusBadge from './CabinStatusBadge';
 import Haptics from '../../utils/Haptics';
 
 const CabinCard = ({ cabin, onPress }) => {
-  const scaleAnim = new Animated.Value(1);
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const onPressIn = () => {
     Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();

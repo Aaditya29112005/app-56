@@ -137,7 +137,6 @@ const CabinsScreen = ({ navigation }) => {
   }, [debouncedQuery, selectedBuilding, selectedType, selectedStatus, selectedSort, cabins]);
 
   const handleClearAll = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedBuilding(BUILDINGS[0]);
     setSelectedType(TYPES[0]);
     setSelectedStatus(STATUSES[0]);
@@ -254,7 +253,6 @@ const CabinsScreen = ({ navigation }) => {
         }
         onClose={() => setActiveFilter(null)}
         onSelect={(opt) => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           if (activeFilter === 'building') setSelectedBuilding(opt);
           else if (activeFilter === 'type') setSelectedType(opt);
           else if (activeFilter === 'status') setSelectedStatus(opt);

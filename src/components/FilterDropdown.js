@@ -62,7 +62,6 @@ const FilterDropdown = ({
 
   const handleSelect = (option) => {
     onSelect(option);
-    handleClose();
   };
 
   const filteredOptions = options.filter(opt => 

@@ -15,7 +15,7 @@ const EventCard = ({ event, onEdit, onDelete, onRSVP }) => {
   };
 
   return (
-    <View style={[styles.card, { backgroundColor: isDark ? '#111827' : colors.card, borderColor: isDark ? '#1F2937' : colors.border }]}>
+    <View style={[styles.card, { backgroundColor: isDark ? '#151922' : colors.card, borderColor: isDark ? '#1E2430' : colors.border }]}>
       
       <View style={styles.header}>
         <View style={styles.titleArea}>
@@ -42,7 +42,7 @@ const EventCard = ({ event, onEdit, onDelete, onRSVP }) => {
         </View>
       </View>
 
-      <View style={[styles.footer, { borderTopColor: isDark ? '#1F2937' : colors.border }]}>
+      <View style={[styles.footer, { borderTopColor: isDark ? '#1E2430' : colors.border }]}>
         <TouchableOpacity style={styles.rsvpBtn} onPress={() => onRSVP(event)}>
           <Users size={16} color="#F97316" />
           <Text style={styles.rsvpBtnText}>View RSVPs</Text>
