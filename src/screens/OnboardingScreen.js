@@ -12,21 +12,27 @@ import { COLORS } from '../theme/colors';
 import { FONTS } from '../theme/typography';
 import PremiumButton from '../components/PremiumButton';
 import Haptics from '../utils/Haptics';
+import Logo from '../components/Onboarding/Logo';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
 const PAGES = [
     {
         id: '1',
-        title: 'Manage your workspace effortlessly',
+        type: 'logo',
     },
     {
         id: '2',
-        title: 'Bookings, access, analytics in one place',
+        title: 'Manage your\nworkspace effortlessly',
+        subtitle: 'Everything you need in one powerful platform.',
+        type: 'text',
     },
     {
         id: '3',
-        title: 'Connect with your community',
+        title: 'Connect with\nyour community',
+        subtitle: 'Engage with members and grow your network.',
+        type: 'text',
     }
 ];
 
@@ -68,12 +74,21 @@ const interpolateColor = (value, inputRange, outputRange) => {
 
 const OnboardingScreen = ({ navigation }) => {
     const scrollX = useSharedValue(0);
+    const bgScale = useSharedValue(1);
+
+    React.useEffect(() => {
+        bgScale.value = withTiming(1.05, { duration: 3000 });
+    }, []);
 
     const onScroll = useAnimatedScrollHandler({
         onScroll: (event) => {
             scrollX.value = event.contentOffset.x;
         },
     });
+
+    const bgAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: bgScale.value }]
+    }));
 
     const handleGetStarted = () => {
         Haptics.impactMedium();
@@ -82,7 +97,34 @@ const OnboardingScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor="#000000" barStyle="light-content" />
+            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+            
+            <Animated.View style={[StyleSheet.absoluteFill, bgAnimatedStyle]}>
+                <Animated.Image 
+                    source={require('../assets/images/workspace_bg.png')}
+                    style={StyleSheet.absoluteFill}
+                    blurRadius={25}
+                    resizeMode="cover"
+                />
+            </Animated.View>
+
+            {/* Dark Overlay Tint */}
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.65)' }]} />
+
+            {/* Gradient Overlay using SVG */}
+            <View style={StyleSheet.absoluteFill}>
+                <Svg height="100%" width="100%">
+                    <Defs>
+                        <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                            <Stop offset="0" stopColor="black" stopOpacity="0.8" />
+                            <Stop offset="0.3" stopColor="black" stopOpacity="0" />
+                            <Stop offset="0.7" stopColor="black" stopOpacity="0" />
+                            <Stop offset="1" stopColor="black" stopOpacity="0.9" />
+                        </LinearGradient>
+                    </Defs>
+                    <Rect width="100%" height="100%" fill="url(#grad)" />
+                </Svg>
+            </View>
             
             <Animated.ScrollView
                 horizontal
@@ -96,34 +138,29 @@ const OnboardingScreen = ({ navigation }) => {
                     const animatedStyle = useAnimatedStyle(() => {
                         const opacity = interpolate(
                             scrollX.value,
-                            [(index - 1) * width, index * width, (index + 1) * width],
+                            [(index - 0.5) * width, index * width, (index + 0.5) * width],
                             [0, 1, 0],
                             Extrapolate.CLAMP
                         );
-                        const translateY = interpolate(
-                            scrollX.value,
-                            [(index - 1) * width, index * width, (index + 1) * width],
-                            [20, 0, -20],
-                            Extrapolate.CLAMP
-                        );
-                        return {
-                            opacity,
-                            transform: [{ translateY }]
-                        };
+                        return { opacity };
                     });
 
                     return (
                         <View key={page.id} style={styles.page}>
-                            {/* Decorative Orange Blur Sphere acting as parallax */}
-                            <Animated.View style={[styles.parallaxSphere, {
-                                transform: [{
-                                    translateX: interpolate(scrollX.value, [(index-1)*width, index*width, (index+1)*width], [width*0.5, 0, -width*0.5])
-                                }]
-                            }]} />
-                            
-                            <Animated.View style={[styles.textContainer, animatedStyle]}>
-                                <Text style={styles.title}>{page.title}</Text>
-                            </Animated.View>
+                            {page.type === 'logo' ? (
+                                <Animated.View style={[styles.logoContainer, animatedStyle]}>
+                                    <Logo />
+                                </Animated.View>
+                            ) : (
+                                <Animated.View style={[styles.textContainer, animatedStyle]}>
+                                    <View style={[styles.focusCircle, { borderColor: 'rgba(255,138,0,0.1)' }]}>
+                                        <Text style={styles.title}>{page.title}</Text>
+                                        <Text style={[styles.subtitle, { color: COLORS.white + '80' }]}>
+                                            {page.subtitle}
+                                        </Text>
+                                    </View>
+                                </Animated.View>
+                            )}
                         </View>
                     );
                 })}
@@ -149,39 +186,51 @@ const OnboardingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000000', // Strict Black
+        backgroundColor: '#000000',
     },
     page: {
         width,
         height,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 40,
     },
-    parallaxSphere: {
-        position: 'absolute',
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: '#FF8A00',
-        opacity: 0.05,
-        top: '30%',
+    logoContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     textContainer: {
+        width,
+        paddingHorizontal: 40,
         alignItems: 'center',
-        marginTop: -100, // Offset to balance visually
+    },
+    focusCircle: {
+        width: 320,
+        height: 320,
+        borderRadius: 160,
+        borderWidth: 1,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontFamily: FONTS.bold,
         color: COLORS.white,
         textAlign: 'center',
         letterSpacing: -0.5,
-        lineHeight: 40,
+        lineHeight: 36,
+    },
+    subtitle: {
+        fontSize: 15,
+        fontFamily: FONTS.medium,
+        textAlign: 'center',
+        marginTop: 12,
+        lineHeight: 22,
     },
     paginationContainer: {
         position: 'absolute',
-        bottom: 140, // Above button safely
+        bottom: 150,
         flexDirection: 'row',
         width: '100%',
         justifyContent: 'center',
@@ -199,7 +248,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     actionBtn: {
-        height: 56,
+        height: 58,
         width: '100%',
     }
 });
