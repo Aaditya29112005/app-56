@@ -1,46 +1,28 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withRepeat, 
-  withTiming,
-  withSequence
-} from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
+import SkeletonBase from '../Skeleton/SkeletonBase';
+
 const SkeletonItem = () => {
-  const opacity = useSharedValue(0.3);
-
-  React.useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.7, { duration: 800 }),
-        withTiming(0.3, { duration: 800 })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
+  const { colors } = useTheme();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.left}>
-        <Animated.View style={[styles.title, animStyle]} />
-        <Animated.View style={[styles.sub, animStyle]} />
+        <SkeletonBase width="80%" height={16} borderRadius={4} />
+        <SkeletonBase width="60%" height={12} borderRadius={4} style={{ marginTop: 8 }} />
+        <SkeletonBase width="70%" height={10} borderRadius={2} style={{ marginTop: 8 }} />
       </View>
-      <View style={styles.middle}>
-        <Animated.View style={[styles.title, animStyle]} />
-        <Animated.View style={[styles.sub, animStyle]} />
+      <View style={[styles.middle, { borderColor: colors.border }]}>
+        <SkeletonBase width="70%" height={14} borderRadius={4} />
+        <SkeletonBase width="50%" height={10} borderRadius={4} style={{ marginTop: 8 }} />
+        <SkeletonBase width="80%" height={12} borderRadius={4} style={{ marginTop: 8 }} />
       </View>
       <View style={styles.right}>
-        <Animated.View style={[styles.badge, animStyle]} />
-        <Animated.View style={[styles.btn, animStyle]} />
+        <SkeletonBase width={60} height={20} borderRadius={10} />
+        <SkeletonBase width={70} height={28} borderRadius={14} style={{ marginTop: 12 }} />
       </View>
     </View>
   );
@@ -58,7 +40,6 @@ const styles = StyleSheet.create({
   },
   card: {
     height: 100,
-    backgroundColor: '#151922',
     borderRadius: 24,
     marginBottom: 16,
     flexDirection: 'row',
@@ -66,12 +47,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   left: { flex: 1.2, gap: 8 },
-  middle: { flex: 1.3, gap: 8, paddingHorizontal: 10, borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#1E2430' },
+  middle: { flex: 1.3, gap: 8, paddingHorizontal: 10, borderLeftWidth: 1, borderRightWidth: 1 },
   right: { flex: 1, gap: 8, alignItems: 'flex-end' },
-  title: { width: '80%', height: 16, backgroundColor: '#1E2430', borderRadius: 4 },
-  sub: { width: '60%', height: 12, backgroundColor: '#1E2430', borderRadius: 4 },
-  badge: { width: 60, height: 20, backgroundColor: '#1E2430', borderRadius: 10 },
-  btn: { width: 50, height: 24, backgroundColor: '#1E2430', borderRadius: 12 },
 });
 
 export default BookingSkeleton;

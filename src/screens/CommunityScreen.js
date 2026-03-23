@@ -12,14 +12,12 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '../context/ThemeContext';
 import { FONTS } from '../theme/typography';
 import DashboardLayout from '../components/DashboardLayout';
-import SocialHeader from '../components/Community/SocialHeader';
 import FilterTabs from '../components/Community/FilterTabs';
 import PostCard from '../components/Community/PostCard';
 import FloatingButton from '../components/Community/FloatingButton';
 import CreatePostModal from '../components/Community/CreatePostModal';
 import CommentModal from '../components/Community/CommentModal';
 import SearchBar from '../components/Community/SearchBar';
-import BottomTabs from '../components/BottomTabs';
 import { usePosts } from '../hooks/usePosts';
 import Haptics from '../utils/Haptics';
 
@@ -27,7 +25,6 @@ const CommunityScreen = ({ navigation }) => {
     const { colors, isDark } = useTheme();
     const { 
         posts, 
-        loading, 
         refreshing, 
         handleRefresh, 
         handleLoadMore, 
@@ -39,15 +36,32 @@ const CommunityScreen = ({ navigation }) => {
 
     const [isCreateModalVisible, setCreateModalVisible] = useState(false);
     const [selectedPostForComments, setSelectedPostForComments] = useState(null);
+    const [screenLoading, setScreenLoading] = useState(true);
 
-    const tabs = ['All', 'Events', 'Announcements', 'General'];
+    const tabs = ['Event', 'Announcement', 'General'];
+
+    // Initial load simulation
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setScreenLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const onTabChange = (tab) => {
+        handleFilterChange(tab);
+        setScreenLoading(true);
+
+        const timer = setTimeout(() => {
+            setScreenLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+    };
 
     const renderHeader = () => (
         <View style={styles.headerContainer}>
-            <SocialHeader />
-            
             <View style={styles.titleSection}>
-                <Text style={[styles.title, { color: colors.text }]}>Social Wall</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Community</Text>
                 <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Connect with the Ofis Square community</Text>
             </View>
 
@@ -68,13 +82,13 @@ const CommunityScreen = ({ navigation }) => {
             <FilterTabs 
                 tabs={tabs} 
                 activeTab={filter} 
-                onTabChange={handleFilterChange} 
+                onTabChange={onTabChange} 
             />
         </View>
     );
 
     const renderFooter = () => {
-        if (!loading) return <View style={{ height: 100 }} />;
+        if (screenLoading || posts.length === 0) return <View style={{ height: 100 }} />;
         return (
             <View style={styles.footerLoader}>
                 <ActivityIndicator color="#FF8A00" />
@@ -91,18 +105,18 @@ const CommunityScreen = ({ navigation }) => {
             }}
         >
             <FlatList
-                data={posts.length === 0 && loading ? [1, 2, 3] : posts}
-                keyExtractor={(item, index) => item.id || `skeleton-${index}`}
+                data={screenLoading ? [1, 2, 3] : posts}
+                keyExtractor={(item, index) => screenLoading ? `skeleton-${index}` : (item.id || `post-${index}`)}
                 renderItem={({ item, index }) => {
-                    if (posts.length === 0 && loading) {
+                    if (screenLoading) {
                         return <PostCard isLoading index={index} />;
                     }
                     return (
-                        <Animated.View entering={FadeInUp.delay(index * 100).springify()}>
+                        <Animated.View entering={FadeInUp.delay(index * 100).duration(400).springify()}>
                             <PostCard 
                                 post={item} 
                                 onComment={(post) => setSelectedPostForComments(post)}
-                                onShare={(post) => Haptics.notificationSuccess()}
+                                onShare={(post) => Haptics.success()}
                             />
                         </Animated.View>
                     );
@@ -136,24 +150,16 @@ const CommunityScreen = ({ navigation }) => {
                 post={selectedPostForComments}
                 onClose={() => setSelectedPostForComments(null)}
             />
-
-            <BottomTabs 
-                activeTab="Community" 
-                onTabPress={(id) => {
-                    Haptics.selection();
-                    navigation.navigate(id);
-                }}
-            />
         </DashboardLayout>
     );
 };
 
 const styles = StyleSheet.create({
     listContent: {
-        paddingBottom: 20,
+        paddingBottom: 100,
     },
     headerContainer: {
-        paddingTop: 10,
+        paddingTop: 20,
     },
     titleSection: {
         paddingHorizontal: 20,

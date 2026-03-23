@@ -1,16 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { 
-    ScrollView, 
     TouchableOpacity, 
     Text, 
     StyleSheet, 
     View, 
-    LayoutAnimation 
+    useWindowDimensions 
 } from 'react-native';
 import Animated, { 
     useSharedValue, 
     useAnimatedStyle, 
-    withSpring 
+    withSpring,
+    withTiming
 } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
 import { FONTS } from '../../theme/typography';
@@ -18,71 +18,62 @@ import Haptics from '../../utils/Haptics';
 
 const FilterTabs = ({ tabs, activeTab, onTabChange }) => {
     const { colors, isDark } = useTheme();
-    const [layouts, setLayouts] = useState({});
+    const { width: screenWidth } = useWindowDimensions();
     
-    const pillX = useSharedValue(0);
-    const pillWidth = useSharedValue(0);
-
-    const handleTabLayout = (event, tab) => {
-        const { x, width } = event.nativeEvent.layout;
-        const newLayouts = { ...layouts, [tab]: { x, width } };
-        setLayouts(newLayouts);
-        
-        if (tab === activeTab) {
-            pillX.value = withSpring(x);
-            pillWidth.value = withSpring(width);
-        }
-    };
+    // Tab width is screenWidth minus horizontal padding (40) divided by number of tabs
+    const containerPadding = 40;
+    const tabWidth = (screenWidth - containerPadding) / tabs.length;
+    
+    const activeIndex = tabs.indexOf(activeTab);
+    const indicatorX = useSharedValue(activeIndex * tabWidth);
 
     React.useEffect(() => {
-        if (layouts[activeTab]) {
-            pillX.value = withSpring(layouts[activeTab].x, { damping: 15 });
-            pillWidth.value = withSpring(layouts[activeTab].width, { damping: 15 });
-        }
-    }, [activeTab, layouts]);
+        indicatorX.value = withSpring(activeIndex * tabWidth, {
+            damping: 20,
+            stiffness: 150,
+            mass: 1
+        });
+    }, [activeIndex, tabWidth]);
 
-    const animatedPillStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: pillX.value }],
-        width: pillWidth.value,
-        opacity: pillWidth.value === 0 ? 0 : 1,
+    const animatedIndicatorStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: indicatorX.value }],
+        width: tabWidth,
     }));
 
     return (
         <View style={styles.wrapper}>
-            <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false} 
-                contentContainerStyle={styles.container}
-            >
+            <View style={styles.container}>
                 <Animated.View style={[
-                    styles.pillHighlight, 
-                    { backgroundColor: '#FF8A00' },
-                    animatedPillStyle
+                    styles.indicator, 
+                    { backgroundColor: colors.primary || '#FF7A00' },
+                    animatedIndicatorStyle
                 ]} />
                 
-                {tabs.map((tab) => {
+                {tabs.map((tab, index) => {
                     const isActive = activeTab === tab;
                     return (
                         <TouchableOpacity
                             key={tab}
                             activeOpacity={0.7}
-                            onLayout={(e) => handleTabLayout(e, tab)}
                             onPress={() => {
                                 Haptics.selection();
                                 onTabChange(tab);
                             }}
                             style={styles.tab}
                         >
-                            <Text style={[
+                            <Animated.Text style={[
                                 styles.tabText,
-                                { color: isActive ? '#FFF' : colors.textMuted }
+                                { 
+                                    color: isActive ? (colors.primary || '#FF7A00') : colors.textMuted,
+                                    fontWeight: isActive ? '700' : '500'
+                                }
                             ]}>
                                 {tab}
-                            </Text>
+                            </Animated.Text>
                         </TouchableOpacity>
                     );
                 })}
-            </ScrollView>
+            </View>
         </View>
     );
 };
@@ -91,31 +82,33 @@ const styles = StyleSheet.create({
     wrapper: {
         marginBottom: 16,
         marginTop: 8,
+        paddingHorizontal: 20,
     },
     container: {
-        paddingHorizontal: 20,
-        height: 44,
+        flexDirection: 'row',
+        height: 48,
         alignItems: 'center',
+        position: 'relative',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
     },
-    pillHighlight: {
+    indicator: {
         position: 'absolute',
-        height: '80%',
-        borderRadius: 20,
-        top: '10%',
-        shadowColor: '#FF8A00',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        height: 3,
+        bottom: -1,
+        borderRadius: 3,
+        zIndex: 1,
     },
     tab: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
+        flex: 1,
+        height: '100%',
         justifyContent: 'center',
-        marginRight: 8,
+        alignItems: 'center',
     },
     tabText: {
         fontSize: 14,
         fontFamily: FONTS.bold,
+        textAlign: 'center',
     }
 });
 

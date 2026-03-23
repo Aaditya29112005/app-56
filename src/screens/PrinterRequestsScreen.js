@@ -19,7 +19,7 @@ import GlassCard from '../components/GlassCard';
 import Haptics from '../utils/Haptics';
 
 const PrinterRequestCard = ({ fileName, client, building, status, credits, requestedDate, onViewFile, index }) => {
-    const { colors } = useTheme();
+    const { colors, isDark } = useTheme();
     const scale = useSharedValue(1);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -50,7 +50,7 @@ const PrinterRequestCard = ({ fileName, client, building, status, credits, reque
                     </View>
 
                     <View style={styles.metaRow}>
-                        <View style={[styles.statusPill, { backgroundColor: isCompleted ? 'rgba(255,138,0,0.12)' : '#1F1F1F' }]}>
+                        <View style={[styles.statusPill, { backgroundColor: isCompleted ? 'rgba(255,138,0,0.12)' : (isDark ? '#1F1F1F' : '#F1F3F5') }]}>
                             <Text style={[styles.statusPillText, { color: isCompleted ? '#FF8A00' : '#A1A1AA' }]}>{status}</Text>
                         </View>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>{requestedDate}</Text>
@@ -84,7 +84,7 @@ const PDFViewerModal = ({ visible, onClose, fileName }) => {
         <Modal visible={visible} transparent animationType="slide">
             <View style={[styles.pdfOverlay, { backgroundColor: 'rgba(0,0,0,0.98)' }]}>
                 <View style={[styles.pdfContainer, { backgroundColor: colors.surface }]}>
-                    <View style={[styles.pdfHeader, { borderBottomColor: '#1F1F1F' }]}>
+                    <View style={[styles.pdfHeader, { borderBottomColor: colors.border }]}>
                         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
                             <Icon name="close" size={24} color={colors.text} />
                         </TouchableOpacity>
@@ -113,14 +113,14 @@ const FilterDropdown = ({ label, value, options, isOpen, onToggle, onSelect }) =
         <View style={styles.filterBox}>
             <Text style={[styles.filterLabel, { color: colors.textMuted }]}>{label}</Text>
             <TouchableOpacity 
-                style={[styles.filterTrigger, { backgroundColor: '#121212', borderColor: '#1F1F1F' }]} 
+                style={[styles.filterTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]} 
                 onPress={onToggle}
             >
                 <Text style={[styles.filterValue, { color: colors.textSecondary }]}>{value}</Text>
                 <Icon name="chevron-down" size={14} color={colors.textMuted} />
             </TouchableOpacity>
             {isOpen && (
-                <View style={[styles.dropdown, { backgroundColor: '#181818', borderColor: '#1F1F1F' }]}>
+                <View style={[styles.dropdown, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
                     {options.map((opt, i) => (
                         <TouchableOpacity key={i} style={styles.dropdownItem} onPress={() => onSelect(opt)}>
                             <Text style={[styles.dropdownText, { color: value === opt ? '#FF8A00' : colors.textSecondary }]}>{opt}</Text>
@@ -133,7 +133,7 @@ const FilterDropdown = ({ label, value, options, isOpen, onToggle, onSelect }) =
 };
 
 const PrinterRequestsScreen = ({ navigation }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isViewerVisible, setIsViewerVisible] = useState(false);
@@ -181,7 +181,7 @@ const PrinterRequestsScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: '#121212', borderColor: '#1F1F1F' }]}>
+        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Icon name="search-outline" size={18} color={colors.textMuted} />
             <TextInput 
                 placeholder="Search by file or client..." 

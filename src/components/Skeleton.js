@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 const Skeleton = ({ width, height, borderRadius = 8, style }) => {
+  const { isDark } = useTheme();
   const animatedValue = React.useRef(new Animated.Value(0)).current;
   const [layoutWidth, setLayoutWidth] = React.useState(0);
 
@@ -28,7 +29,12 @@ const Skeleton = ({ width, height, borderRadius = 8, style }) => {
       onLayout={(e) => setLayoutWidth(e.nativeEvent.layout.width)}
       style={[
         styles.skeleton,
-        { width, height, borderRadius },
+        { 
+          width, 
+          height, 
+          borderRadius,
+          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.05)',
+        },
         style,
       ]}
     >
@@ -38,7 +44,7 @@ const Skeleton = ({ width, height, borderRadius = 8, style }) => {
             StyleSheet.absoluteFill,
             {
               transform: [{ translateX }],
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
             }
           ]}
         />
@@ -49,7 +55,6 @@ const Skeleton = ({ width, height, borderRadius = 8, style }) => {
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     overflow: 'hidden',
   },
 });

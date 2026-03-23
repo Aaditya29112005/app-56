@@ -10,6 +10,7 @@ import ClientCard from '../components/Clients/ClientCard';
 import ClientModal from '../components/Clients/ClientModal';
 import ClientsFilterBar from '../components/Clients/ClientsFilterBar';
 import FilterDropdown from '../components/FilterDropdown';
+import { SkeletonList } from '../components/Skeleton/SkeletonLayouts';
 
 const MOCK_CLIENTS = [
   {
@@ -93,7 +94,15 @@ const ClientsScreen = () => {
   const insets = useSafeAreaInsets();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [typeFilter, setTypeFilter] = useState(null);
   const [sortFilter, setSortFilter] = useState(null);
@@ -195,22 +204,28 @@ const ClientsScreen = () => {
         onClearAll={handleClearAll}
       />
 
-      <FlatList
-        data={filteredClients}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <ClientCard client={item} onView={setSelectedClient} />
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Search size={48} color={colors.border} style={{marginBottom: SPACING.md}} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No clients found</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Try adjusting your search or filters.</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.listContent}>
+           <SkeletonList horizontal items={5} />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredClients}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <ClientCard client={item} onView={setSelectedClient} />
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Search size={48} color={colors.border} style={{marginBottom: SPACING.md}} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No clients found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Try adjusting your search or filters.</Text>
+            </View>
+          }
+        />
+      )}
 
       <FilterDropdown 
         visible={!!activeDropdown}

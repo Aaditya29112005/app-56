@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
@@ -29,10 +29,25 @@ const NAV_ITEMS = [
   ]},
 ];
 
-const Sidebar = ({ activeTab, onTabPress, isCollapsed, onToggleCollapse }) => {
+const Sidebar = ({ activeTab, onTabPress, isCollapsed, onToggleCollapse, onLogout }) => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = React.useState('Bookings');
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Logout", 
+          style: "destructive", 
+          onPress: () => onLogout && onLogout() 
+        }
+      ]
+    );
+  };
 
   return (
     <View style={[
@@ -142,7 +157,11 @@ const Sidebar = ({ activeTab, onTabPress, isCollapsed, onToggleCollapse }) => {
 
       {/* Footer */}
       <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
-        <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: colors.glassBackground }]} activeOpacity={0.7}>
+        <TouchableOpacity 
+          style={[styles.logoutBtn, { backgroundColor: colors.glassBackground }]} 
+          activeOpacity={0.7}
+          onPress={handleLogout}
+        >
           <Icon name="log-out-outline" size={18} color={colors.textSecondary} />
           {!isCollapsed && <Text style={[styles.logoutText, { color: colors.textSecondary }]}>Logout</Text>}
         </TouchableOpacity>

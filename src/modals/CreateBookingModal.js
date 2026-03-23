@@ -8,8 +8,10 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { COLORS } from '../theme/colors';
 import { FONTS } from '../theme/typography';
 import { SPACING } from '../theme/spacing';
+import { useTheme } from '../context/ThemeContext';
 
 const CreateBookingModal = ({ visible, onClose, onSubmit }) => {
+  const { colors, isDark } = useTheme();
   const [formData, setFormData] = useState({
     room: '',
     member: '',
@@ -36,11 +38,11 @@ const CreateBookingModal = ({ visible, onClose, onSubmit }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>Create New Booking</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Create New Booking</Text>
             <TouchableOpacity onPress={onClose}>
-              <X size={24} color="#FFF" />
+              <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -167,14 +169,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#151922',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 24,
     maxHeight: '90%',
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: '#1E2430',
   },
   header: {
     flexDirection: 'row',
@@ -185,7 +185,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.bold,
     fontSize: 20,
-    color: '#FFF',
   },
   form: {
     paddingBottom: 40,

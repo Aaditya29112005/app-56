@@ -6,8 +6,10 @@ import {
 import { X, Calendar, Clock, MapPin, Users, Coffee, UserPlus, Fingerprint } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
 import { FONTS } from '../theme/typography';
+import { useTheme } from '../context/ThemeContext';
 
 const BookingDetailsModal = ({ visible, booking, onClose }) => {
+  const { colors, isDark } = useTheme();
   if (!booking) return null;
 
   return (
@@ -18,16 +20,16 @@ const BookingDetailsModal = ({ visible, booking, onClose }) => {
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.content}>
+        <View style={[styles.content, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.title}>Booking Details</Text>
+              <Text style={[styles.title, { color: colors.text }]}>Booking Details</Text>
               <View style={[styles.statusBadge, { backgroundColor: booking.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 138, 0, 0.1)' }]}>
                 <Text style={[styles.statusText, { color: booking.status === 'COMPLETED' ? '#10B981' : '#FF8A00' }]}>{booking.status}</Text>
               </View>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <X size={24} color="#FFF" />
+            <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { borderColor: colors.border }]}>
+              <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -36,40 +38,40 @@ const BookingDetailsModal = ({ visible, booking, onClose }) => {
                <View style={styles.infoRow}>
                   <MapPin size={20} color="#64748B" />
                   <View style={styles.infoCol}>
-                     <Text style={styles.infoLabel}>Meeting Room</Text>
-                     <Text style={styles.infoValue}>{booking.roomName}</Text>
-                     <Text style={styles.infoSub}>{booking.capacity} Persons Max</Text>
+                     <Text style={[styles.infoLabel, { color: colors.textMuted }]}>Meeting Room</Text>
+                     <Text style={[styles.infoValue, { color: colors.text }]}>{booking.roomName}</Text>
+                     <Text style={[styles.infoSub, { color: colors.textMuted }]}>{booking.capacity} Persons Max</Text>
                   </View>
                </View>
 
                <View style={styles.infoRow}>
                   <Calendar size={20} color="#64748B" />
                   <View style={styles.infoCol}>
-                     <Text style={styles.infoLabel}>Schedule</Text>
-                     <Text style={styles.infoValue}>{booking.startTime}</Text>
-                     <Text style={styles.infoValue}>{booking.endTime}</Text>
+                     <Text style={[styles.infoLabel, { color: colors.textMuted }]}>Schedule</Text>
+                     <Text style={[styles.infoValue, { color: colors.text }]}>{booking.startTime}</Text>
+                     <Text style={[styles.infoValue, { color: colors.text }]}>{booking.endTime}</Text>
                   </View>
                </View>
 
                <View style={styles.infoRow}>
                   <Fingerprint size={20} color="#64748B" />
                   <View style={styles.infoCol}>
-                     <Text style={styles.infoLabel}>Member</Text>
-                     <Text style={styles.infoValue}>{booking.memberName}</Text>
-                     <Text style={styles.infoSub}>{booking.memberLocation}</Text>
+                     <Text style={[styles.infoLabel, { color: colors.textMuted }]}>Member</Text>
+                     <Text style={[styles.infoValue, { color: colors.text }]}>{booking.memberName}</Text>
+                     <Text style={[styles.infoSub, { color: colors.textMuted}]}>{booking.memberLocation}</Text>
                   </View>
                </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             <View style={styles.section}>
-               <Text style={styles.sectionTitle}>Catering & Items</Text>
+               <Text style={[styles.sectionTitle, { color: colors.text }]}>Catering & Items</Text>
                <View style={styles.tagGrid}>
                   {booking.catering.length > 0 ? booking.catering.map((item, i) => (
-                    <View key={i} style={styles.tag}>
+                    <View key={i} style={[styles.tag, { borderColor: colors.border }]}>
                        <Coffee size={14} color="#FF8A00" />
-                       <Text style={styles.tagText}>{item}</Text>
+                       <Text style={[styles.tagText, { color: colors.text }]}>{item}</Text>
                     </View>
                   )) : (
                     <Text style={styles.emptyText}>No catering assigned</Text>
@@ -78,13 +80,13 @@ const BookingDetailsModal = ({ visible, booking, onClose }) => {
             </View>
 
             <View style={styles.section}>
-               <Text style={styles.sectionTitle}>Visitors ({booking.visitors.length})</Text>
+               <Text style={[styles.sectionTitle, { color: colors.text }]}>Visitors ({booking.visitors.length})</Text>
                {booking.visitors.length > 0 ? booking.visitors.map((v, i) => (
-                 <View key={i} style={styles.visitorItem}>
-                    <UserPlus size={16} color="#64748B" />
+                 <View key={i} style={[styles.visitorItem, { borderColor: colors.border }]}>
+                    <UserPlus size={16} color={colors.textMuted} />
                     <View>
-                       <Text style={styles.visitorName}>{v.name}</Text>
-                       <Text style={styles.visitorEmail}>{v.email}</Text>
+                       <Text style={[styles.visitorName, { color: colors.text }]}>{v.name}</Text>
+                       <Text style={[styles.visitorEmail, { color: colors.textMuted }]}>{v.email}</Text>
                     </View>
                  </View>
                )) : (
@@ -93,8 +95,8 @@ const BookingDetailsModal = ({ visible, booking, onClose }) => {
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Notes</Text>
-                <Text style={styles.notesText}>{booking.notes || 'No additional notes'}</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Notes</Text>
+                <Text style={[styles.notesText, { color: colors.textSecondary, borderColor: colors.border }]}>{booking.notes || 'No additional notes'}</Text>
             </View>
           </ScrollView>
 
@@ -119,10 +121,8 @@ const styles = StyleSheet.create({
   content: {
     width: '100%',
     maxHeight: '85%',
-    backgroundColor: '#151922',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#1E2430',
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 20 },
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.bold,
     fontSize: 22,
-    color: '#FFF',
     marginBottom: 6,
   },
   statusBadge: {
@@ -157,7 +156,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E2430',
   },
   section: {
     marginBottom: 24,
@@ -165,7 +163,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: FONTS.bold,
     fontSize: 14,
-    color: '#FFF',
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -181,23 +178,19 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontFamily: FONTS.medium,
     fontSize: 12,
-    color: '#64748B',
     marginBottom: 4,
   },
   infoValue: {
     fontFamily: FONTS.bold,
     fontSize: 16,
-    color: '#FFF',
   },
   infoSub: {
     fontFamily: FONTS.medium,
     fontSize: 13,
-    color: '#475569',
     marginTop: 2,
   },
   divider: {
     height: 1,
-    backgroundColor: '#1E2430',
     marginBottom: 24,
   },
   tagGrid: {
@@ -213,11 +206,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#1E2430',
     gap: 6,
   },
   tagText: {
-    color: '#FFF',
     fontFamily: FONTS.medium,
     fontSize: 13,
   },
@@ -235,26 +226,21 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E2430',
   },
   visitorName: {
     fontFamily: FONTS.bold,
     fontSize: 14,
-    color: '#FFF',
   },
   visitorEmail: {
     fontSize: 12,
-    color: '#64748B',
   },
   notesText: {
-    color: '#94A3B8',
     fontSize: 14,
     lineHeight: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E2430',
   },
   accessBtn: {
     flexDirection: 'row',

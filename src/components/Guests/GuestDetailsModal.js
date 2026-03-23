@@ -6,22 +6,19 @@ import { FONTS, FONT_SIZE } from '../../theme/typography';
 import { SPACING, BORDER_RADIUS } from '../../theme/spacing';
 
 const GUESTS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
   textSecondary: '#9CA3AF'
 };
 
-const InfoRow = ({ label, value }) => (
+const InfoRow = ({ label, value, colors }) => (
   <View style={styles.infoRow}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{value || '—'}</Text>
+    <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+    <Text style={[styles.value, { color: colors.text }]}>{value || '—'}</Text>
   </View>
 );
 
-const SectionBlock = ({ title, children }) => (
+const SectionBlock = ({ title, children, colors }) => (
   <View style={styles.sectionBlock}>
-    <Text style={styles.sectionTitle}>{title}</Text>
+    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
     {children}
   </View>
 );
@@ -57,35 +54,40 @@ const GuestDetailsModal = ({ visible, user, onClose }) => {
 
         <Animated.View style={[
           styles.modalBox, 
-          { transform: [{ scale: scaleAnim }], opacity: fadeAnim }
+          { 
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+            transform: [{ scale: scaleAnim }], 
+            opacity: fadeAnim 
+          }
         ]}>
           
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Guest Details</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-              <X size={20} color={GUESTS_THEME.textSecondary} />
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.text }]}>Guest Details</Text>
+            <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: colors.background }]} hitSlop={10}>
+              <X size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.scrollArea} showsVerticalScrollIndicator={false}>
              
-             <SectionBlock title="Basic Info">
-               <InfoRow label="Name" value={user.name} />
-               <InfoRow label="Email" value={user.email} />
-               <InfoRow label="Phone" value={user.phone} />
-               <InfoRow label="Company" value={user.company} />
+             <SectionBlock title="Basic Info" colors={colors}>
+               <InfoRow label="Name" value={user.name} colors={colors} />
+               <InfoRow label="Email" value={user.email} colors={colors} />
+               <InfoRow label="Phone" value={user.phone} colors={colors} />
+               <InfoRow label="Company" value={user.company} colors={colors} />
              </SectionBlock>
 
-             <SectionBlock title="Additional Info">
-               <InfoRow label="Zoho Contact ID" value={user.zohoContactId} />
+             <SectionBlock title="Additional Info" colors={colors}>
+               <InfoRow label="Zoho Contact ID" value={user.zohoContactId} colors={colors} />
              </SectionBlock>
 
           </ScrollView>
 
           <View style={styles.footer}>
-             <TouchableOpacity style={styles.footerBtn} onPress={onClose}>
-                <Text style={styles.footerBtnTxt}>Close Details</Text>
+             <TouchableOpacity style={[styles.footerBtn, { borderColor: colors.border, backgroundColor: colors.background }]} onPress={onClose}>
+                <Text style={[styles.footerBtnTxt, { color: colors.text }]}>Close Details</Text>
              </TouchableOpacity>
           </View>
 
@@ -99,10 +101,8 @@ const styles = StyleSheet.create({
   overlayContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.75)' },
   modalBox: {
-    backgroundColor: GUESTS_THEME.card,
     borderRadius: BORDER_RADIUS.xl,
     borderWidth: 1,
-    borderColor: GUESTS_THEME.border,
     width: '100%',
     maxHeight: '85%',
     shadowColor: '#000',
@@ -118,7 +118,6 @@ const styles = StyleSheet.create({
     padding: SPACING.xl,
     paddingBottom: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: GUESTS_THEME.border
   },
   title: {
     fontFamily: FONTS.bold,
@@ -129,7 +128,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: GUESTS_THEME.bg,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -157,7 +155,6 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZE.sm,
-    color: GUESTS_THEME.textSecondary,
     flex: 0.4
   },
   value: {
@@ -173,8 +170,6 @@ const styles = StyleSheet.create({
   },
   footerBtn: {
     borderWidth: 1,
-    borderColor: GUESTS_THEME.border,
-    backgroundColor: GUESTS_THEME.bg,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',

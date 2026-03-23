@@ -65,7 +65,7 @@ const ImportRFIDScreen = ({ navigation }) => {
           setTimeout(() => {
               setIsUploading(false);
               setUploadSuccess(true);
-              Haptics.notificationSuccess();
+              Haptics.success();
           }, 1500);
 
       } catch (err) {

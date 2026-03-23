@@ -8,8 +8,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ChevronDown, Check } from 'lucide-react-native';
 import { FONTS } from '../theme/typography';
+import { useTheme } from '../context/ThemeContext';
 
 const StatusDropdown = ({ selected, onSelect }) => {
+  const { colors, isDark } = useTheme();
   const [visible, setVisible] = useState(false);
   
   const options = ['All Status', 'Booked', 'Completed', 'Cancelled', 'Ongoing'];
@@ -17,12 +19,12 @@ const StatusDropdown = ({ selected, onSelect }) => {
   return (
     <View style={styles.wrapper}>
       <TouchableOpacity 
-        style={styles.trigger}
+        style={[styles.trigger, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.surface, borderColor: colors.border }]}
         onPress={() => setVisible(true)}
         activeOpacity={0.7}
       >
-        <Text style={styles.triggerText}>{selected || 'All Status'}</Text>
-        <ChevronDown size={18} color="#64748B" />
+        <Text style={[styles.triggerText, { color: colors.text }]}>{selected || 'All Status'}</Text>
+        <ChevronDown size={18} color={colors.textSecondary} />
       </TouchableOpacity>
 
       <Modal
@@ -36,7 +38,7 @@ const StatusDropdown = ({ selected, onSelect }) => {
           activeOpacity={1}
           onPress={() => setVisible(false)}
         >
-          <Animated.View style={styles.dropdown}>
+          <Animated.View style={[styles.dropdown, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: '#000' }]}>
             <FlatList
               data={options}
               keyExtractor={(item) => item}
@@ -50,11 +52,12 @@ const StatusDropdown = ({ selected, onSelect }) => {
                 >
                   <Text style={[
                       styles.optionText, 
-                      selected === item && { color: '#FF8A00', fontFamily: FONTS.bold }
+                      { color: selected === item ? colors.primary : colors.textSecondary },
+                      selected === item && { fontFamily: FONTS.bold }
                   ]}>
                     {item}
                   </Text>
-                  {selected === item && <Check size={16} color="#FF8A00" />}
+                  {selected === item && <Check size={16} color={colors.primary} />}
                 </TouchableOpacity>
               )}
             />
@@ -74,14 +77,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 44,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#1E2430',
     paddingHorizontal: 16,
   },
   triggerText: {
-    color: '#FFF',
     fontFamily: FONTS.medium,
     fontSize: 14,
   },
@@ -93,12 +93,9 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     width: 200,
-    backgroundColor: '#151922',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#1E2430',
     padding: 8,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
@@ -113,7 +110,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   optionText: {
-    color: '#94A3B8',
     fontFamily: FONTS.medium,
     fontSize: 14,
   }

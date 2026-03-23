@@ -176,7 +176,7 @@ const CommentModal = ({ visible, post, onClose }) => {
                             exiting={SlideOutDown}
                             style={[
                                 styles.modalContent, 
-                                { backgroundColor: isDark ? '#121212' : '#FFF' },
+                                { backgroundColor: colors.surface },
                                 animatedStyle
                             ]}
                         >
@@ -218,7 +218,7 @@ const CommentModal = ({ visible, post, onClose }) => {
                         />
 
                         {/* Input Area */}
-                        <View style={[styles.inputWrapper, { borderTopColor: colors.border, backgroundColor: isDark ? '#121212' : '#FFF' }]}>
+                        <View style={[styles.inputWrapper, { borderTopColor: colors.border, backgroundColor: colors.surface }]}>
                             {replyingTo && (
                                 <View style={styles.replyingBar}>
                                     <Text style={[styles.replyingText, { color: colors.textSecondary }]}>

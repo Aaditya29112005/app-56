@@ -11,8 +11,10 @@ import { MapPin, User, Clock, ChevronRight } from 'lucide-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { COLORS } from '../../theme/colors';
 import { FONTS } from '../../theme/typography';
+import { useTheme } from '../../context/ThemeContext';
 
 const MeetingRoomCard = ({ booking, onAction }) => {
+  const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
 
@@ -54,24 +56,24 @@ const MeetingRoomCard = ({ booking, onAction }) => {
         onPress={() => onAction('view', booking)}
         style={styles.cardWrapper}
       >
-        <Animated.View style={[styles.card, animatedStyle]}>
+        <Animated.View style={[styles.card, animatedStyle, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {/* Left Section: Room Info */}
           <View style={styles.leftSection}>
-            <Text style={styles.roomName}>{booking.roomName}</Text>
+            <Text style={[styles.roomName, { color: colors.text }]}>{booking.roomName}</Text>
             <View style={styles.infoRow}>
-              <MapPin size={12} color="#64748B" />
-              <Text style={styles.locationText}>{booking.memberLocation || 'Meeting Room'}</Text>
+              <MapPin size={12} color={colors.textSecondary} />
+              <Text style={[styles.locationText, { color: colors.textSecondary }]}>{booking.memberLocation || 'Meeting Room'}</Text>
             </View>
-            <Text style={styles.capacityText}>Capacity: {booking.capacity}</Text>
+            <Text style={[styles.capacityText, { color: colors.textMuted }]}>Capacity: {booking.capacity}</Text>
           </View>
 
           {/* Middle Section: Member & Timing */}
-          <View style={styles.middleSection}>
+          <View style={[styles.middleSection, { borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : colors.border }]}>
             <View style={styles.memberRow}>
-               <User size={14} color="#FFF" />
-               <Text style={styles.memberName}>{booking.memberName}</Text>
+               <User size={14} color={colors.text} />
+               <Text style={[styles.memberName, { color: colors.text }]}>{booking.memberName}</Text>
             </View>
-            <Text style={styles.emailText}>Member</Text>
+            <Text style={[styles.emailText, { color: colors.textSecondary }]}>Member</Text>
             <View style={styles.timingRow}>
                <Clock size={12} color="#F59E0B" />
                <Text style={styles.timingText}>{booking.startTime.split('at')[0]}</Text>
@@ -83,10 +85,10 @@ const MeetingRoomCard = ({ booking, onAction }) => {
             <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
               <Text style={[styles.statusText, { color: status.text }]}>{status.label}</Text>
             </View>
-            <Text style={styles.invoiceText}>{booking.invoiceStatus}</Text>
-            <View style={styles.actionBtn}>
-               <Text style={styles.actionBtnText}>View</Text>
-               <ChevronRight size={14} color="#FFF" />
+            <Text style={[styles.invoiceText, { color: colors.textMuted }]}>{booking.invoiceStatus}</Text>
+            <View style={[styles.actionBtn, { backgroundColor: colors.surfaceElevated }]}>
+               <Text style={[styles.actionBtnText, { color: colors.textSecondary }]}>View</Text>
+               <ChevronRight size={14} color={colors.textSecondary} />
             </View>
           </View>
         </Animated.View>
@@ -102,11 +104,9 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#151922',
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#1E2430',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.4,
@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
   roomName: {
     fontFamily: FONTS.bold,
     fontSize: 18,
-    color: '#FFF',
     marginBottom: 6,
   },
   infoRow: {
@@ -132,12 +131,10 @@ const styles = StyleSheet.create({
   locationText: {
     fontFamily: FONTS.medium,
     fontSize: 12,
-    color: '#64748B',
   },
   capacityText: {
      fontFamily: FONTS.medium,
      fontSize: 11,
-     color: '#475569',
   },
   middleSection: {
     flex: 1.3,
@@ -145,7 +142,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   memberRow: {
     flexDirection: 'row',
@@ -156,12 +152,10 @@ const styles = StyleSheet.create({
   memberName: {
     fontFamily: FONTS.bold,
     fontSize: 14,
-    color: '#FFF',
   },
   emailText: {
     fontFamily: FONTS.medium,
     fontSize: 11,
-    color: '#64748B',
     marginBottom: 8,
   },
   timingRow: {
@@ -192,7 +186,6 @@ const styles = StyleSheet.create({
   invoiceText: {
     fontFamily: FONTS.medium,
     fontSize: 11,
-    color: '#475569',
     marginVertical: 4,
   },
   actionBtn: {
@@ -205,7 +198,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   actionBtnText: {
-    color: '#FFF',
     fontFamily: FONTS.bold,
     fontSize: 12,
   }

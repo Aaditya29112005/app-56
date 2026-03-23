@@ -22,14 +22,10 @@ import FilterDropdown from '../../components/FilterDropdown';
 import VisitorForm from '../../components/MeetingRoom/VisitorForm';
 import Haptics from '../../utils/Haptics';
 
-const THEME = {
-  bg: '#000000',
-  card: '#111827',
-  border: '#1F2937',
-  accent: '#F97316',
-};
+
 
 const CreateMeetingBookingScreen = ({ navigation, route }) => {
+  const { colors, isDark } = useTheme();
   const { rooms, addBooking } = useMeetingRoomStore();
   const preSelectedRoom = route.params?.room;
 
@@ -88,22 +84,22 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
   const Section = ({ title, children, icon: IconComp }) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        {IconComp && <IconComp size={16} color={THEME.accent} style={{ marginRight: 8 }} />}
-        <Text style={styles.sectionLabel}>{title}</Text>
+        {IconComp && <IconComp size={16} color="#F97316" style={{ marginRight: 8 }} />}
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{title}</Text>
       </View>
       {children}
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <X size={24} color="#FFF" />
+          <X size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Create Meeting Booking</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Create Meeting Booking</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -112,20 +108,20 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
           
           <Section title="MEETING ROOM" icon={Building}>
             <TouchableOpacity 
-              style={styles.inputBox}
+              style={[styles.inputBox, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
               onPress={() => setActiveDropdown('room')}
             >
-              <Text style={[styles.inputValue, { color: selectedRoom ? '#FFF' : '#64748B' }]}>
+              <Text style={[styles.inputValue, { color: selectedRoom ? colors.text : colors.textMuted }]}>
                 {selectedRoom ? selectedRoom.name : 'Select Room'}
               </Text>
-              <ChevronDown size={20} color="#64748B" />
+              <ChevronDown size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </Section>
 
           <View style={styles.row}>
              <View style={{ flex: 1 }}>
                 <Section title="CUSTOMER TYPE">
-                   <View style={styles.toggleRow}>
+                   <View style={[styles.toggleRow, { backgroundColor: isDark ? colors.surfaceElevated : colors.background }]}>
                       {['Client', 'Member'].map(type => (
                         <TouchableOpacity 
                           key={type}
@@ -142,9 +138,9 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
              <View style={{ flex: 1.2 }}>
                 <Section title={customerType.toUpperCase()}>
                    <TextInput 
-                     style={styles.inputBox}
+                     style={[styles.inputBox, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                      placeholder={`Enter ${customerType} name`}
-                     placeholderTextColor="#64748B"
+                     placeholderTextColor={colors.textMuted}
                      value={clientName}
                      onChangeText={setClientName}
                    />
@@ -154,13 +150,13 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
 
           <Section title="DATE & TIME SLOT" icon={Clock}>
              <View style={styles.row}>
-                <TouchableOpacity style={[styles.inputBox, { flex: 1 }]}>
-                   <Text style={{ color: '#FFF', fontFamily: FONTS.bold }}>{bookingDate}</Text>
+                <TouchableOpacity style={[styles.inputBox, { flex: 1, backgroundColor: colors.surface, borderColor: colors.border }]}>
+                   <Text style={{ color: colors.text, fontFamily: FONTS.bold }}>{bookingDate}</Text>
                 </TouchableOpacity>
                 <View style={{ width: 12 }} />
-                <TouchableOpacity style={[styles.inputBox, { flex: 1 }]} onPress={() => setActiveDropdown('slot')}>
-                   <Text style={{ color: '#64748B', fontFamily: FONTS.medium }}>Select Slot</Text>
-                   <ChevronDown size={18} color="#64748B" />
+                <TouchableOpacity style={[styles.inputBox, { flex: 1, backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => setActiveDropdown('slot')}>
+                   <Text style={{ color: colors.textMuted, fontFamily: FONTS.medium }}>Select Slot</Text>
+                   <ChevronDown size={18} color={colors.textMuted} />
                 </TouchableOpacity>
              </View>
           </Section>
@@ -182,7 +178,7 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
               />
             ))}
             <TouchableOpacity style={styles.addVisitorBtn} onPress={handleAddVisitor}>
-               <Plus size={16} color={THEME.accent} />
+               <Plus size={16} color={colors.primary} />
                <Text style={styles.addVisitorText}>Add Visitor</Text>
             </TouchableOpacity>
           </Section>
@@ -190,39 +186,39 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
           <Section title="PAYMENT DETAILS" icon={CreditCard}>
              <View style={styles.inputGroup}>
                 <Text style={styles.fieldLabel}>Payment Method</Text>
-                <TouchableOpacity style={styles.inputBox} onPress={() => setActiveDropdown('payment')}>
-                   <Text style={{ color: '#FFF', fontFamily: FONTS.bold }}>{paymentMethod}</Text>
-                   <ChevronDown size={18} color="#64748B" />
+                <TouchableOpacity style={[styles.inputBox, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => setActiveDropdown('payment')}>
+                   <Text style={{ color: colors.text, fontFamily: FONTS.bold }}>{paymentMethod}</Text>
+                   <ChevronDown size={18} color={colors.textMuted} />
                 </TouchableOpacity>
              </View>
 
              <View style={styles.row}>
                 <View style={{ flex: 1 }}>
-                   <Text style={styles.fieldLabel}>Discount %</Text>
+                   <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>Discount %</Text>
                    <TextInput 
-                     style={styles.inputBox}
+                     style={[styles.inputBox, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                      placeholder="0"
-                     placeholderTextColor="#64748B"
+                     placeholderTextColor={colors.textMuted}
                      keyboardType="numeric"
                      value={discount}
                      onChangeText={setDiscount}
                    />
                 </View>
                 <View style={{ width: 12 }} />
-                <View style={{ flex: 1 }}>
-                   <Text style={styles.fieldLabel}>Currency</Text>
-                   <View style={[styles.inputBox, { backgroundColor: '#1F2937' }]}>
-                      <Text style={{ color: '#94A3B8' }}>INR (₹)</Text>
-                   </View>
-                </View>
+                 <View style={{ flex: 1 }}>
+                    <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>Currency</Text>
+                    <View style={[styles.inputBox, { backgroundColor: isDark ? colors.surfaceElevated : colors.background }]}>
+                       <Text style={{ color: colors.textSecondary }}>INR (₹)</Text>
+                    </View>
+                 </View>
              </View>
           </Section>
 
           <Section title="NOTES">
              <TextInput 
-               style={[styles.inputBox, { height: 80, textAlignVertical: 'top', paddingTop: 12 }]}
+               style={[styles.inputBox, { height: 80, textAlignVertical: 'top', paddingTop: 12, backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                placeholder="Additional comments..."
-               placeholderTextColor="#64748B"
+               placeholderTextColor={colors.textMuted}
                multiline
                value={notes}
                onChangeText={setNotes}
@@ -230,27 +226,27 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
           </Section>
 
           {/* Detailed Summary */}
-          <View style={styles.summaryCard}>
+          <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Hourly Rate</Text>
-                <Text style={styles.summaryVal}>₹{selectedRoom?.hourlyRate || 0}</Text>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Hourly Rate</Text>
+                <Text style={[styles.summaryVal, { color: colors.text }]}>₹{selectedRoom?.hourlyRate || 0}</Text>
              </View>
              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Discount Applied</Text>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Discount Applied</Text>
                 <Text style={[styles.summaryVal, { color: '#10B981' }]}>- ₹{((parseFloat(discount || 0) / 100) * (selectedRoom?.hourlyRate || 0)).toFixed(2)}</Text>
              </View>
-             <View style={[styles.summaryRow, { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#334155' }]}>
-                <Text style={[styles.summaryLabel, { color: '#FFF' }]}>Final Amount</Text>
-                <Text style={[styles.summaryVal, { color: THEME.accent, fontSize: 20 }]}>₹{totalAmount.toLocaleString()}</Text>
+             <View style={[styles.summaryRow, { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border }]}>
+                <Text style={[styles.summaryLabel, { color: colors.text }]}>Final Amount</Text>
+                <Text style={[styles.summaryVal, { color: '#F97316', fontSize: 20 }]}>₹{totalAmount.toLocaleString()}</Text>
              </View>
           </View>
 
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={styles.footer}>
-         <TouchableOpacity style={styles.cancelBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.cancelText}>Cancel</Text>
+      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+         <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: colors.surface }]} onPress={() => navigation.goBack()}>
+            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
          </TouchableOpacity>
          <TouchableOpacity 
            style={[styles.submitBtn, isSubmitting && { opacity: 0.7 }]} 
@@ -290,21 +286,18 @@ const CreateMeetingBookingScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.bg },
+  container: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SPACING.lg },
-  title: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF' },
+  title: { fontFamily: FONTS.bold, fontSize: 18 },
   scrollContent: { padding: SPACING.lg, paddingBottom: 60 },
   section: { marginBottom: 24 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  sectionLabel: { fontFamily: FONTS.bold, fontSize: 11, color: '#94A3B8', letterSpacing: 1, textTransform: 'uppercase' },
+  sectionLabel: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' },
   inputBox: { 
     height: 52, 
-    backgroundColor: '#1A1A1A', 
     borderRadius: 12, 
     paddingHorizontal: 16, 
     borderWidth: 1, 
-    borderColor: '#1F1F1F', 
-    color: '#FFF', 
     fontFamily: FONTS.medium, 
     fontSize: 14,
     flexDirection: 'row', 
@@ -313,20 +306,20 @@ const styles = StyleSheet.create({
   },
   inputValue: { fontFamily: FONTS.bold, fontSize: 14 },
   row: { flexDirection: 'row', marginBottom: 16 },
-  toggleRow: { flexDirection: 'row', height: 44, backgroundColor: '#111827', borderRadius: 10, padding: 4, gap: 4 },
+  toggleRow: { flexDirection: 'row', height: 44, borderRadius: 10, padding: 4, gap: 4 },
   toggleBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 8 },
   toggleBtnActive: { backgroundColor: '#F97316' },
   toggleText: { fontFamily: FONTS.bold, fontSize: 12, color: '#64748B' },
   addVisitorBtn: { height: 48, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(249, 115, 22, 0.2)', borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, marginTop: 8 },
   addVisitorText: { fontFamily: FONTS.bold, fontSize: 13, color: '#F97316' },
-  fieldLabel: { fontFamily: FONTS.bold, fontSize: 12, color: '#64748B', marginBottom: 8, marginLeft: 4 },
-  summaryCard: { backgroundColor: '#1A1A1A', borderRadius: 18, padding: 16, borderLeftWidth: 4, borderLeftColor: '#F97316', marginBottom: 24 },
+  fieldLabel: { fontFamily: FONTS.bold, fontSize: 12, marginBottom: 8, marginLeft: 4 },
+  summaryCard: { borderRadius: 18, padding: 16, borderLeftWidth: 4, borderLeftColor: '#F97316', marginBottom: 24 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  summaryLabel: { fontFamily: FONTS.medium, fontSize: 14, color: '#94A3B8' },
-  summaryVal: { fontFamily: FONTS.bold, fontSize: 14, color: '#F8FAFC' },
-  footer: { padding: 20, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#1F2937', flexDirection: 'row', gap: 12 },
-  cancelBtn: { flex: 1, height: 56, borderRadius: 16, backgroundColor: '#1E293B', alignItems: 'center', justifyContent: 'center' },
-  cancelText: { fontFamily: FONTS.bold, fontSize: 15, color: '#94A3B8' },
+  summaryLabel: { fontFamily: FONTS.medium, fontSize: 14 },
+  summaryVal: { fontFamily: FONTS.bold, fontSize: 14 },
+  footer: { padding: 20, paddingBottom: 40, borderTopWidth: 1, flexDirection: 'row', gap: 12 },
+  cancelBtn: { flex: 1, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  cancelText: { fontFamily: FONTS.bold, fontSize: 15 },
   submitBtn: { flex: 2, height: 56, borderRadius: 16, backgroundColor: '#F97316', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10 },
   submitText: { fontFamily: FONTS.bold, fontSize: 15, color: '#FFF' },
 });

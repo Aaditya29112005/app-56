@@ -11,7 +11,7 @@ const TabSwitcher = ({ tabs, activeTab, onTabChange }) => {
     <View style={[
       styles.container, 
       { 
-        backgroundColor: isDark ? '#1A1A1A' : colors.surfaceElevated,
+        backgroundColor: colors.surfaceElevated,
         borderColor: colors.border
       }
     ]}>

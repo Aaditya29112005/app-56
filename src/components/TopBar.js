@@ -1,43 +1,112 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring, 
+  withTiming,
+  FadeInDown,
+  Easing
+} from 'react-native-reanimated';
 import { useTheme } from '../context/ThemeContext';
 import { FONTS } from '../theme/typography';
 import AnimatedPill from './AnimatedPill';
+import Skeleton from './Skeleton';
+import Haptics from '../utils/Haptics';
 
-const TopBar = () => {
-  const { isDark, toggleTheme } = useTheme();
+import { formatTopBarDate } from '../utils/dateUtils';
+
+const ThemeToggle = React.memo(({ isDark, onToggle }) => {
+  const rotation = useSharedValue(0);
+  const glowOpacity = useSharedValue(isDark ? 0 : 0.4);
+
+  useEffect(() => {
+    rotation.value = withSpring(isDark ? 0 : 180, { damping: 14, stiffness: 100 });
+    glowOpacity.value = withTiming(isDark ? 0 : 0.4, { duration: 300 });
+  }, [isDark]);
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
 
   return (
-    <View style={styles.container}>
+    <AnimatedPill style={styles.iconBtn} onPress={onToggle}>
+      <Animated.View style={[styles.glowRing, glowStyle]} />
+      <Animated.View style={iconAnimatedStyle}>
+        <Icon name={isDark ? "moon-outline" : "sunny-outline"} size={16} color={isDark ? '#8A8A8A' : '#FF8A00'} />
+      </Animated.View>
+    </AnimatedPill>
+  );
+});
+
+const TopBar = () => {
+  const { isDark, toggleTheme, colors } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const dateString = useMemo(() => formatTopBarDate(), []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleToggle = useCallback(() => {
+    Haptics.impactMedium();
+    toggleTheme();
+  }, [toggleTheme]);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.content}>
+          <View style={styles.leftSection}>
+            <Skeleton width={130} height={38} borderRadius={24} />
+            <Skeleton width={38} height={38} borderRadius={24} />
+            <Skeleton width={40} height={16} borderRadius={4} />
+          </View>
+          <View style={styles.rightSection}>
+            <Skeleton width={38} height={38} borderRadius={24} />
+            <Skeleton width={80} height={30} borderRadius={4} />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         
         {/* Left Section - Date, Theme, Weather */}
-        <View style={styles.leftSection}>
+        <Animated.View entering={FadeInDown.duration(500).delay(100)} style={styles.leftSection}>
           <AnimatedPill style={styles.datePill}>
-            <Text style={styles.dateText}>18 March 2026</Text>
+            <Text style={[styles.dateText, { color: colors.textSecondary }]}>{dateString}</Text>
           </AnimatedPill>
           
-          <AnimatedPill style={styles.iconBtn} onPress={toggleTheme}>
-            <Icon name={isDark ? "moon-outline" : "sunny-outline"} size={16} color="#8A8A8A" />
-          </AnimatedPill>
+          <ThemeToggle isDark={isDark} onToggle={handleToggle} />
           
-          <Text style={styles.weatherText}>22°C</Text>
-        </View>
+          <Text style={[styles.weatherText, { color: colors.textSecondary }]}>22°C</Text>
+        </Animated.View>
 
-        <View style={styles.divider} />
+        <Animated.View entering={FadeInDown.duration(500).delay(200)} style={styles.dividerWrap}>
+          <View style={[styles.divider, { backgroundColor: isDark ? '#1A1A1A' : '#E5E5EA' }]} />
+        </Animated.View>
 
         {/* Right Section - Community Badge */}
-        <View style={styles.rightSection}>
+        <Animated.View entering={FadeInDown.duration(500).delay(300)} style={styles.rightSection}>
           <AnimatedPill style={styles.iconBtn}>
-            <Icon name="business-outline" size={16} color="#8A8A8A" />
+            <Icon name="business-outline" size={16} color={colors.textSecondary || '#8A8A8A'} />
           </AnimatedPill>
           
           <View style={styles.communityBadge}>
-            <Text style={styles.communitySub}>COMMUNITY</Text>
-            <Text style={styles.communityName}>Ofis Square</Text>
+            <Text style={[styles.communitySub, { color: isDark ? '#777777' : '#94A3B8' }]}>COMMUNITY</Text>
+            <Text style={[styles.communityName, { color: colors.text }]}>Ofis Square</Text>
           </View>
-        </View>
+        </Animated.View>
 
       </View>
     </View>
@@ -48,18 +117,17 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: '#000000',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20, // Consistent premium padding
+    paddingHorizontal: 20,
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10, // Explicit rhythm gap
+    gap: 10,
   },
   rightSection: {
     flexDirection: 'row',
@@ -73,42 +141,50 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dateText: {
-    color: '#8A8A8A', // Muted premium
     fontSize: 13,
     fontFamily: FONTS.medium,
   },
   iconBtn: {
     width: 38,
     height: 38,
+    overflow: 'hidden',
+  },
+  glowRing: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 19,
+    borderWidth: 2,
+    borderColor: '#FF8A00',
   },
   weatherText: {
-    color: '#8A8A8A',
     fontSize: 13,
     fontFamily: FONTS.medium,
-    marginLeft: 2, // Slight breathing room from pill
+    marginLeft: 2,
+  },
+  dividerWrap: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
   },
   divider: {
     width: 1,
-    height: 16, // Extremely subtle height
-    backgroundColor: '#1A1A1A',
-    marginHorizontal: 12, // Equal spacing
+    height: 16,
   },
   communityBadge: {
     justifyContent: 'center',
   },
   communitySub: {
-    color: '#777777',
     fontSize: 9,
     fontFamily: FONTS.bold,
     letterSpacing: 1.2,
-    textTransform: 'uppercase', // Forced small caps mapping
+    textTransform: 'uppercase',
   },
   communityName: {
-    color: '#FFFFFF', // Pristine white
-    fontSize: 14, // Lifted slightly
+    fontSize: 14,
     fontFamily: FONTS.medium,
     marginTop: 2,
   },
 });
 
-export default TopBar;
+export default React.memo(TopBar);

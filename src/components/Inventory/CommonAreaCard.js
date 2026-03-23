@@ -5,8 +5,10 @@ import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';
 import CommonAreaStatusBadge from './CommonAreaStatusBadge';
 import Haptics from '../../utils/Haptics';
+import { useTheme } from '../../context/ThemeContext';
 
 const CommonAreaCard = ({ area, onEdit, onDelete, onToggleStatus }) => {
+  const { colors, isDark } = useTheme();
   const scaleAnim = new Animated.Value(1);
 
   const onPressIn = () => {
@@ -18,7 +20,7 @@ const CommonAreaCard = ({ area, onEdit, onDelete, onToggleStatus }) => {
   };
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
+    <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }], backgroundColor: colors.surface, borderColor: colors.border }]}>
       <TouchableOpacity 
         activeOpacity={1}
         onPressIn={onPressIn}
@@ -27,10 +29,10 @@ const CommonAreaCard = ({ area, onEdit, onDelete, onToggleStatus }) => {
       >
         <View style={styles.header}>
           <View style={styles.areaInfo}>
-            <Text style={styles.name}>{area.name}</Text>
+            <Text style={[styles.name, { color: colors.text }]}>{area.name}</Text>
             <View style={styles.typeRow}>
-               <Layers size={12} color="#64748B" />
-               <Text style={styles.typeText}>{area.type}</Text>
+               <Layers size={12} color={colors.textSecondary} />
+               <Text style={[styles.typeText, { color: colors.textSecondary }]}>{area.type}</Text>
             </View>
           </View>
           <CommonAreaStatusBadge status={area.status} />
@@ -39,25 +41,25 @@ const CommonAreaCard = ({ area, onEdit, onDelete, onToggleStatus }) => {
         <View style={styles.body}>
            <View style={styles.metaItem}>
              <Building2 size={14} color="#F97316" />
-             <Text style={styles.metaText}>{area.building}</Text>
+             <Text style={[styles.metaText, { color: colors.text }]}>{area.building}</Text>
            </View>
            <View style={styles.metaItem}>
-             <Cpu size={14} color="#64748B" />
-             <Text style={styles.metaText}>{area.devices?.length || 0} Devices</Text>
+             <Cpu size={14} color={colors.textSecondary} />
+             <Text style={[styles.metaText, { color: colors.text }]}>{area.devices?.length || 0} Devices</Text>
            </View>
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
            <TouchableOpacity style={styles.actionBtn} onPress={() => onEdit(area)}>
-              <Edit2 size={16} color="#94A3B8" />
-              <Text style={styles.actionText}>Edit</Text>
+              <Edit2 size={16} color={colors.textMuted} />
+              <Text style={[styles.actionText, { color: colors.textMuted }]}>Edit</Text>
            </TouchableOpacity>
-           <View style={styles.divider} />
+           <View style={[styles.divider, { backgroundColor: colors.border }]} />
            <TouchableOpacity style={styles.actionBtn} onPress={() => onToggleStatus(area.id)}>
-              <Power size={16} color={area.status === 'ACTIVE' ? '#F97316' : '#94A3B8'} />
-              <Text style={styles.actionText}>Status</Text>
+              <Power size={16} color={area.status === 'ACTIVE' ? '#F97316' : colors.textMuted} />
+              <Text style={[styles.actionText, { color: colors.textMuted }]}>Status</Text>
            </TouchableOpacity>
-           <View style={styles.divider} />
+           <View style={[styles.divider, { backgroundColor: colors.border }]} />
            <TouchableOpacity style={styles.actionBtn} onPress={() => onDelete(area.id)}>
               <Trash2 size={16} color="#EF4444" />
               <Text style={[styles.actionText, { color: '#EF4444' }]}>Delete</Text>
@@ -71,32 +73,29 @@ const CommonAreaCard = ({ area, onEdit, onDelete, onToggleStatus }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A1A1A',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1F1F1F',
     marginBottom: SPACING.md,
     overflow: 'hidden',
   },
   content: { padding: SPACING.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  name: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF', marginBottom: 4 },
+  name: { fontFamily: FONTS.bold, fontSize: 18, marginBottom: 4 },
   typeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  typeText: { fontFamily: FONTS.medium, fontSize: 13, color: '#94A3B8' },
+  typeText: { fontFamily: FONTS.medium, fontSize: 13 },
   body: { flexDirection: 'row', gap: 20, marginBottom: 20 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontFamily: FONTS.bold, fontSize: 13, color: '#F9FAFB' },
+  metaText: { fontFamily: FONTS.bold, fontSize: 13 },
   footer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-between',
     paddingTop: 16, 
     borderTopWidth: 1, 
-    borderTopColor: '#334155' 
   },
   actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
-  actionText: { fontFamily: FONTS.bold, fontSize: 12, color: '#94A3B8' },
-  divider: { width: 1, height: 16, backgroundColor: '#334155' },
+  actionText: { fontFamily: FONTS.bold, fontSize: 12 },
+  divider: { width: 1, height: 16 },
 });
 
 export default CommonAreaCard;

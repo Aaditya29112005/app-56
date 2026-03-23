@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.lg },
   monthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
   monthText: { fontFamily: FONTS.semibold, fontSize: FONT_SIZE.md },
-  arrowBtn: { padding: 8, backgroundColor: '#2A2A2A', borderRadius: 8 },
+  arrowBtn: { padding: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8 },
   daysRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: SPACING.sm },
   dayHeaderLabel: { flex: 1, textAlign: 'center', fontFamily: FONTS.medium, fontSize: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' },

@@ -9,13 +9,9 @@ import { SPACING, BORDER_RADIUS } from '../theme/spacing';
 import LeadCard from '../components/Leads/LeadCard';
 import LeadDetailsModal from '../components/Leads/LeadDetailsModal';
 import FilterDropdown from '../components/FilterDropdown';
+import { SkeletonList } from '../components/Skeleton/SkeletonLayouts';
 
-const LEADS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
-  textSecondary: '#9CA3AF'
-};
+
 
 const MOCK_LEADS = [
   {
@@ -70,7 +66,15 @@ const LeadsScreen = ({ navigation }) => {
   const { colors } = useTheme();
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const [statusFilter, setStatusFilter] = useState(null);
   const [purposeFilter, setPurposeFilter] = useState(null);
   
@@ -117,8 +121,8 @@ const LeadsScreen = ({ navigation }) => {
       <View style={styles.header}>
          <View style={styles.headerTop}>
             <View>
-              <Text style={styles.title}>Leads</Text>
-              <Text style={styles.subtitle}>Manage and track all leads</Text>
+              <Text style={[styles.title, { color: colors.text }]}>Leads</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Manage and track all leads</Text>
             </View>
             <TouchableOpacity 
               style={[styles.createBtn, { backgroundColor: colors.primary }]}
@@ -129,48 +133,54 @@ const LeadsScreen = ({ navigation }) => {
             </TouchableOpacity>
          </View>
 
-         <View style={styles.searchWrap}>
-            <Search size={18} color={LEADS_THEME.textSecondary} />
+         <View style={[styles.searchWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Search size={18} color={colors.textSecondary} />
             <TextInput 
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search by name, email, phone, company..."
-              placeholderTextColor={LEADS_THEME.textSecondary}
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
          </View>
 
          <View style={styles.filterRow}>
-            <TouchableOpacity style={styles.filterBtn} onPress={() => setActiveSheet('status')}>
-               <SlidersHorizontal size={14} color={LEADS_THEME.textSecondary} />
-               <Text style={styles.filterBtnTxt}>{statusFilter ? statusFilter.label : 'All Status'}</Text>
-               <ChevronDown size={14} color={LEADS_THEME.textSecondary} />
+            <TouchableOpacity style={[styles.filterBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => setActiveSheet('status')}>
+               <SlidersHorizontal size={14} color={colors.textSecondary} />
+               <Text style={[styles.filterBtnTxt, { color: colors.text }]}>{statusFilter ? statusFilter.label : 'All Status'}</Text>
+               <ChevronDown size={14} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.filterBtn} onPress={() => setActiveSheet('purpose')}>
-               <SlidersHorizontal size={14} color={LEADS_THEME.textSecondary} />
-               <Text style={styles.filterBtnTxt}>{purposeFilter ? purposeFilter.label : 'All Purpose'}</Text>
-               <ChevronDown size={14} color={LEADS_THEME.textSecondary} />
+            <TouchableOpacity style={[styles.filterBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => setActiveSheet('purpose')}>
+               <SlidersHorizontal size={14} color={colors.textSecondary} />
+               <Text style={[styles.filterBtnTxt, { color: colors.text }]}>{purposeFilter ? purposeFilter.label : 'All Purpose'}</Text>
+               <ChevronDown size={14} color={colors.textSecondary} />
             </TouchableOpacity>
          </View>
       </View>
 
-      <FlatList 
-        data={filteredLeads}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <LeadCard lead={item} onView={setSelectedLead} />
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Search size={48} color={LEADS_THEME.border} style={{marginBottom: SPACING.md}} />
-            <Text style={styles.emptyTitle}>No leads found</Text>
-            <Text style={styles.emptySubtitle}>Try adjusting your search or filters.</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.listContent}>
+           <SkeletonList horizontal items={5} />
+        </View>
+      ) : (
+        <FlatList 
+          data={filteredLeads}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <LeadCard lead={item} onView={setSelectedLead} />
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Search size={48} color={colors.textMuted} style={{marginBottom: SPACING.md}} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No leads found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>Try adjusting your search or filters.</Text>
+            </View>
+          }
+        />
+      )}
 
       <FilterDropdown 
         visible={!!activeSheet}
@@ -195,8 +205,8 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   header: { paddingHorizontal: SPACING.md, paddingTop: SPACING.md, paddingBottom: SPACING.sm },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SPACING.lg },
-  title: { fontFamily: FONTS.bold, fontSize: 26, color: '#FFF', marginBottom: 2 },
-  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs, color: LEADS_THEME.textSecondary },
+  title: { fontFamily: FONTS.bold, fontSize: 26, marginBottom: 2 },
+  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs },
   createBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -209,33 +219,29 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: LEADS_THEME.card,
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: SPACING.md,
     marginBottom: SPACING.md
   },
-  searchInput: { flex: 1, marginLeft: 8, fontFamily: FONTS.regular, fontSize: FONT_SIZE.md, color: '#FFF', height: '100%' },
+  searchInput: { flex: 1, marginLeft: 8, fontFamily: FONTS.regular, fontSize: FONT_SIZE.md, height: '100%' },
   
   filterRow: { flexDirection: 'row', gap: SPACING.sm },
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: LEADS_THEME.card,
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
     height: 38,
     borderRadius: BORDER_RADIUS.full,
     paddingHorizontal: SPACING.md
   },
-  filterBtnTxt: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs, color: '#FFF', marginHorizontal: 6 },
+  filterBtnTxt: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs, marginHorizontal: 6 },
 
   listContent: { paddingHorizontal: SPACING.md, paddingBottom: 100, paddingTop: SPACING.sm },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 80 },
-  emptyTitle: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.lg, color: '#FFF', marginBottom: 4 },
-  emptySubtitle: { fontFamily: FONTS.regular, fontSize: FONT_SIZE.sm, color: LEADS_THEME.textSecondary }
+  emptyTitle: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.lg, marginBottom: 4 },
+  emptySubtitle: { fontFamily: FONTS.regular, fontSize: FONT_SIZE.sm }
 });
 
 export default LeadsScreen;

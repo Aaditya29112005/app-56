@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { Building2, Users, MapPin, Layers } from 'lucide-react-native';
 import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';
+import { useTheme } from '../../context/ThemeContext';
 import CabinStatusBadge from './CabinStatusBadge';
 import Haptics from '../../utils/Haptics';
 
 const CabinCard = ({ cabin, onPress }) => {
+  const { colors, isDark } = useTheme();
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const onPressIn = () => {
@@ -18,7 +20,7 @@ const CabinCard = ({ cabin, onPress }) => {
   };
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
+    <Animated.View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity 
         activeOpacity={1}
         onPressIn={onPressIn}
@@ -31,10 +33,10 @@ const CabinCard = ({ cabin, onPress }) => {
       >
         <View style={styles.header}>
           <View style={styles.cabinInfo}>
-            <Text style={styles.cabinNo}>{cabin.cabinNo}</Text>
+            <Text style={[styles.cabinNo, { color: colors.text }]}>{cabin.cabinNo}</Text>
             <View style={styles.typeRow}>
-               <Layers size={12} color="#64748B" />
-               <Text style={styles.typeText}>{cabin.type} • Floor {cabin.floor}</Text>
+               <Layers size={12} color={colors.textMuted} />
+               <Text style={[styles.typeText, { color: colors.textSecondary }]}>{cabin.type} • Floor {cabin.floor}</Text>
             </View>
           </View>
           <CabinStatusBadge status={cabin.status} />
@@ -43,17 +45,17 @@ const CabinCard = ({ cabin, onPress }) => {
         <View style={styles.body}>
            <View style={styles.metaItem}>
              <Building2 size={14} color="#F59E0B" />
-             <Text style={styles.metaText}>{cabin.building}</Text>
+              <Text style={[styles.metaText, { color: colors.text }]}>{cabin.building}</Text>
            </View>
            <View style={styles.metaItem}>
-             <Users size={14} color="#64748B" />
-             <Text style={styles.metaText}>{cabin.capacity} people</Text>
+              <Users size={14} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.text }]}>{cabin.capacity} people</Text>
            </View>
         </View>
 
-        <View style={styles.footer}>
-           <Text style={styles.allocationLabel}>ALLOCATED TO</Text>
-           <Text style={[styles.allocatedTo, !cabin.allocatedTo && { color: '#64748B', fontStyle: 'italic' }]}>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+           <Text style={[styles.allocationLabel, { color: colors.textMuted }]}>ALLOCATED TO</Text>
+           <Text style={[styles.allocatedTo, !cabin.allocatedTo && { color: colors.textMuted, fontStyle: 'italic' }]}>
              {cabin.allocatedTo || 'Not Allocated'}
            </Text>
         </View>
@@ -65,23 +67,21 @@ const CabinCard = ({ cabin, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A1A1A',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1F1F1F',
     marginBottom: SPACING.md,
     overflow: 'hidden',
   },
   content: { padding: SPACING.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  cabinNo: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF', marginBottom: 4 },
+  cabinNo: { fontFamily: FONTS.bold, fontSize: 18, marginBottom: 4 },
   typeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  typeText: { fontFamily: FONTS.medium, fontSize: 13, color: '#94A3B8' },
+  typeText: { fontFamily: FONTS.medium, fontSize: 13 },
   body: { flexDirection: 'row', gap: 20, marginBottom: 20 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontFamily: FONTS.bold, fontSize: 13, color: '#F9FAFB' },
-  footer: { paddingTop: 16, borderTopWidth: 1, borderTopColor: '#374151' },
-  allocationLabel: { fontFamily: FONTS.bold, fontSize: 10, color: '#64748B', letterSpacing: 1, marginBottom: 6 },
+  metaText: { fontFamily: FONTS.bold, fontSize: 13 },
+  footer: { paddingTop: 16, borderTopWidth: 1 },
+  allocationLabel: { fontFamily: FONTS.bold, fontSize: 10, letterSpacing: 1, marginBottom: 6 },
   allocatedTo: { fontFamily: FONTS.bold, fontSize: 14, color: '#F59E0B' },
 });
 

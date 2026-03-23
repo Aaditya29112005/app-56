@@ -6,11 +6,13 @@ import Animated, {
     withSpring,
     withTiming
 } from 'react-native-reanimated';
+import { useTheme } from '../context/ThemeContext';
 import Haptics from '../utils/Haptics';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 const AnimatedPill = ({ children, onPress, style }) => {
+    const { colors, isDark } = useTheme();
     const scale = useSharedValue(1);
     const opacity = useSharedValue(1);
 
@@ -42,7 +44,16 @@ const AnimatedPill = ({ children, onPress, style }) => {
             onPress={handlePress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            style={[styles.pill, animatedStyle, style]}
+            style={[
+                styles.pill, 
+                { 
+                    backgroundColor: colors.surface,
+                    borderColor: isDark ? colors.border : 'rgba(0,0,0,0.08)',
+                    shadowOpacity: isDark ? 0.15 : 0.06,
+                },
+                animatedStyle, 
+                style
+            ]}
         >
             {children}
         </AnimatedTouchableOpacity>
@@ -51,15 +62,12 @@ const AnimatedPill = ({ children, onPress, style }) => {
 
 const styles = StyleSheet.create({
     pill: {
-        backgroundColor: '#121212', // Subtle inner depth
         borderWidth: 1,
-        borderColor: '#1A1A1A', // Very subtle border
-        borderRadius: 24, // Precise rounding from wireframe
+        borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
         shadowRadius: 4,
         elevation: 2,
     }

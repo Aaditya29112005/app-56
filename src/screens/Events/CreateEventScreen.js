@@ -23,12 +23,7 @@ import FilterDropdown from '../../components/FilterDropdown';
 import CalendarDatePicker from '../../components/Reception/CalendarDatePicker';
 import SpeakerInputGroup from '../../components/Events/SpeakerInputGroup';
 
-const THEME = {
-  bg: '#000000',
-  card: '#1A1A1A',
-  border: '#1F1F1F',
-  accent: '#f97316',
-};
+
 
 const CATEGORIES = [
   { label: 'Networking', value: 'Networking' },
@@ -58,7 +53,7 @@ const EventSchema = Yup.object().shape({
 });
 
 const CreateEventScreen = ({ navigation, route }) => {
-  const { isDark } = useTheme();
+  const { isDark, colors } = useTheme();
   const { addEvent, updateEvent } = useEventsStore();
   const editMode = route.params?.edit || false;
   const initialEvent = route.params?.event;
@@ -114,13 +109,13 @@ const CreateEventScreen = ({ navigation, route }) => {
 
   const renderInput = (label, value, onChange, placeholder, error, multiline = false) => (
     <View style={styles.inputGroup}>
-      <Text style={styles.inputLabel}>{label}</Text>
+      <Text style={[styles.inputLabel, { color: isDark ? '#94A3B8' : '#6B7280' }]}>{label}</Text>
       <TextInput
-        style={[styles.input, multiline && styles.textArea, { borderColor: THEME.border, backgroundColor: THEME.card }]}
+        style={[styles.input, multiline && styles.textArea, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.text }]}
         value={value}
         onChangeText={onChange}
         placeholder={placeholder}
-        placeholderTextColor="#64748B"
+        placeholderTextColor={colors.textMuted}
         multiline={multiline}
         numberOfLines={multiline ? 4 : 1}
       />
@@ -130,12 +125,12 @@ const CreateEventScreen = ({ navigation, route }) => {
 
   const renderPickerTrigger = (label, value, onPress, icon, error) => (
     <View style={styles.inputGroup}>
-      <Text style={styles.inputLabel}>{label}</Text>
+      <Text style={[styles.inputLabel, { color: isDark ? '#94A3B8' : '#6B7280' }]}>{label}</Text>
       <TouchableOpacity 
-        style={[styles.pickerTrigger, { borderColor: THEME.border, backgroundColor: THEME.card }]} 
+        style={[styles.pickerTrigger, { borderColor: colors.border, backgroundColor: colors.surface }]} 
         onPress={onPress}
       >
-        <Text style={[styles.pickerValue, { color: value ? '#FFF' : '#64748B' }]}>{value || 'Select'}</Text>
+        <Text style={[styles.pickerValue, { color: value ? colors.text : colors.textMuted }]}>{value || 'Select'}</Text>
         {icon}
       </TouchableOpacity>
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -143,15 +138,15 @@ const CreateEventScreen = ({ navigation, route }) => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: THEME.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <X size={24} color="#FFF" />
+            <X size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: '#FFF' }]}>{editMode ? 'Edit Event' : 'Create Event'}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{editMode ? 'Edit Event' : 'Create Event'}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -216,11 +211,11 @@ const CreateEventScreen = ({ navigation, route }) => {
 
               </ScrollView>
 
-              <View style={[styles.footer, { borderTopColor: THEME.border }]}>
-                <TouchableOpacity style={styles.cancelBtn} onPress={() => navigation.goBack()}>
-                   <Text style={styles.cancelBtnText}>Cancel</Text>
+              <View style={[styles.footer, { borderTopColor: colors.border }]}>
+                <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: colors.surface }]} onPress={() => navigation.goBack()}>
+                   <Text style={[styles.cancelBtnText, { color: colors.text }]}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: THEME.accent }]} onPress={handleSubmit}>
+                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: '#f97316' }]} onPress={handleSubmit}>
                    <Save size={18} color="#FFF" />
                    <Text style={styles.saveBtnText}>{editMode ? 'Update' : 'Save Event'}</Text>
                 </TouchableOpacity>
@@ -276,8 +271,8 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONTS.bold, fontSize: 20 },
   form: { flex: 1, paddingHorizontal: SPACING.lg },
   inputGroup: { marginBottom: 20 },
-  inputLabel: { fontFamily: FONTS.bold, fontSize: 13, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase' },
-  input: { height: 52, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, color: '#FFF', fontFamily: FONTS.medium, fontSize: 15 },
+  inputLabel: { fontFamily: FONTS.bold, fontSize: 13, marginBottom: 8, textTransform: 'uppercase' },
+  input: { height: 52, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, fontFamily: FONTS.medium, fontSize: 15 },
   textArea: { height: 100, paddingTop: 12, textAlignVertical: 'top' },
   pickerTrigger: { height: 52, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pickerValue: { fontFamily: FONTS.medium, fontSize: 15 },
@@ -285,8 +280,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 12 },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginVertical: 24 },
   footer: { padding: SPACING.lg, flexDirection: 'row', gap: 12, borderTopWidth: 1, paddingBottom: 32 },
-  cancelBtn: { flex: 1, height: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1E293B' },
-  cancelBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: '#FFF' },
+  cancelBtn: { flex: 1, height: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  cancelBtnText: { fontFamily: FONTS.bold, fontSize: 14 },
   saveBtn: { flex: 2, height: 52, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   saveBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: '#FFF' },
 });

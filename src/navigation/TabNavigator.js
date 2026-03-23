@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -7,15 +8,19 @@ import DashboardScreen from '../screens/DashboardScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { FONTS } from '../theme/typography';
+import { useTheme } from '../context/ThemeContext';
 import Haptics from '../utils/Haptics';
 
 const Tab = createBottomTabNavigator();
 
-const TabButton = ({ route, label, isFocused, onPress, options }) => {
+const TabButton = ({ route, label, isFocused, onPress, options, isDark }) => {
     const scale = useSharedValue(isFocused ? 1 : 0.95);
 
     React.useEffect(() => {
-        scale.value = withSpring(isFocused ? 1 : 0.95);
+        scale.value = withSpring(isFocused ? 1 : 0.95, {
+            damping: 12,
+            stiffness: 100
+        });
     }, [isFocused]);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -32,12 +37,12 @@ const TabButton = ({ route, label, isFocused, onPress, options }) => {
         if (route.name === 'Profile') iconName = 'person';
     }
 
+    const inactiveColor = isDark ? '#71717A' : '#9CA3AF';
+
     return (
         <TouchableOpacity
             accessibilityRole="button"
             accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarTestID}
             onPress={() => {
                 Haptics.selection();
                 onPress();
@@ -50,10 +55,16 @@ const TabButton = ({ route, label, isFocused, onPress, options }) => {
                     <Icon
                         name={iconName}
                         size={22}
-                        color={isFocused ? '#FF8A00' : '#8E8E93'}
+                        color={isFocused ? '#FF8A00' : inactiveColor}
                     />
                 </View>
-                <Text style={[styles.tabLabel, { color: isFocused ? '#FF8A00' : '#8E8E93', fontFamily: isFocused ? FONTS.bold : FONTS.medium }]}>
+                <Text style={[
+                  styles.tabLabel, 
+                  { 
+                    color: isFocused ? '#FF8A00' : inactiveColor, 
+                    fontFamily: isFocused ? FONTS.bold : FONTS.medium 
+                  }
+                ]}>
                     {label}
                 </Text>
             </Animated.View>
@@ -62,9 +73,23 @@ const TabButton = ({ route, label, isFocused, onPress, options }) => {
 };
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
+  const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
+  const bottomOffset = Math.max(insets.bottom, 10) + 8;
+
   return (
-    <View style={styles.tabBarContainer}>
-      <View style={styles.glassBackground} />
+    <View style={[
+      styles.tabBarContainer, 
+      { 
+        bottom: bottomOffset,
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+        shadowOpacity: isDark ? 0.25 : 0.1,
+      }
+    ]}>
+      <View style={[
+        styles.glassBackground, 
+        { backgroundColor: isDark ? 'rgba(18, 18, 18, 0.95)' : 'rgba(255, 255, 255, 0.95)' }
+      ]} />
       <View style={styles.tabBarInner}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -96,7 +121,8 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
                   label={label} 
                   isFocused={isFocused} 
                   onPress={onPress} 
-                  options={options} 
+                  options={options}
+                  isDark={isDark}
               />
           );
         })}
@@ -121,19 +147,21 @@ const TabNavigator = () => {
 const styles = StyleSheet.create({
   tabBarContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 32 : 24,
     left: 24,
     right: 24,
-    height: 68,
-    borderRadius: 24,
+    height: 72,
+    borderRadius: 28,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'transparent', // Make container transparent for the absolute background
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 25,
+    elevation: 15,
   },
   glassBackground: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(18, 18, 18, 0.85)', // High opacity fallback for blur
+    backgroundColor: 'rgba(18, 18, 18, 0.95)',
   },
   tabBarInner: {
     flexDirection: 'row',
@@ -152,7 +180,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
   },
   iconContainer: {
-    width: 44,
+    width: 48,
     height: 32,
     borderRadius: 16,
     alignItems: 'center',
@@ -161,10 +189,14 @@ const styles = StyleSheet.create({
   },
   activeIconContainer: {
     backgroundColor: 'rgba(255, 138, 0, 0.12)',
+    shadowColor: '#FF8A00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   },
   tabLabel: {
     fontSize: 10,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
 });
 

@@ -2,6 +2,7 @@ export const DARK_THEME = {
   // Base Colors
   background: "#000000",
   surface: "#121212",
+  card: "#121212",
   surfaceElevated: "#1C1C1E",
   
   // Glassmorphism Tokens
@@ -23,6 +24,7 @@ export const LIGHT_THEME = {
   // Base Colors
   background: "#F6F7F9",
   surface: "#FFFFFF",
+  card: "#FFFFFF",
   surfaceElevated: "#FFFFFF",
   
   // Glassmorphism Tokens
@@ -32,11 +34,11 @@ export const LIGHT_THEME = {
   
   // Text Colors
   text: "#111111",
-  textSecondary: "#555555",
-  textMuted: "#888888",
+  textSecondary: "#6B7280",
+  textMuted: "#9CA3AF",
   
   // UI Colors
-  border: "transparent",
+  border: "#E5E7EB",
   divider: "#E5E5EA",
 };
 

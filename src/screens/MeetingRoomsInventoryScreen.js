@@ -16,6 +16,7 @@ import { FONTS } from '../theme/typography';
 import DashboardLayout from '../components/DashboardLayout';
 import GlassCard from '../components/GlassCard';
 import Haptics from '../utils/Haptics';
+import { SkeletonLargeCard } from '../components/Skeleton/SkeletonLayouts';
 
 const MeetingRoomCard = ({ name, floor, building, capacity, rate, status, index }) => {
     const { colors } = useTheme();
@@ -39,7 +40,7 @@ const MeetingRoomCard = ({ name, floor, building, capacity, rate, status, index 
                 onPress={() => Haptics.impactLight()}
             >
                 <Animated.View style={animatedStyle}>
-                    <GlassCard style={[styles.roomCard, { borderColor: '#1F1F1F' }, isActive && styles.activeCardGlow]}>
+                    <GlassCard style={[styles.roomCard, { borderColor: colors.border }, isActive && styles.activeCardGlow]}>
                         <View style={styles.cardHeader}>
                             <Text style={[styles.roomName, { color: colors.text }]} numberOfLines={1}>{name}</Text>
                             <View style={[styles.statusBadge, { 
@@ -79,14 +80,14 @@ const FilterDropdown = ({ label, value, options, isOpen, onToggle, onSelect }) =
     return (
         <View style={styles.filterBox}>
             <TouchableOpacity 
-                style={[styles.filterTrigger, { backgroundColor: '#121212', borderColor: '#1F1F1F' }]} 
+                style={[styles.filterTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]} 
                 onPress={onToggle}
             >
                 <Text style={[styles.filterValue, { color: colors.textSecondary }]} numberOfLines={1}>{value}</Text>
                 <Icon name="chevron-down" size={12} color={colors.textMuted} />
             </TouchableOpacity>
             {isOpen && (
-                <View style={[styles.dropdown, { backgroundColor: '#181818', borderColor: '#1F1F1F' }]}>
+                <View style={[styles.dropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <ScrollView bounces={false} style={{ maxHeight: 200 }}>
                         {options.map((opt, i) => (
                             <TouchableOpacity key={i} style={styles.dropdownItem} onPress={() => onSelect(opt)}>
@@ -103,7 +104,15 @@ const FilterDropdown = ({ label, value, options, isOpen, onToggle, onSelect }) =
 const MeetingRoomsInventoryScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const [filters, setFilters] = useState({
     building: 'All Buildings',
     type: 'All Types'
@@ -132,7 +141,7 @@ const MeetingRoomsInventoryScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: '#121212', borderColor: '#1F1F1F' }]}>
+        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Icon name="search-outline" size={18} color={colors.textMuted} />
             <TextInput 
                 placeholder="Find a room..." 
@@ -167,9 +176,17 @@ const MeetingRoomsInventoryScreen = ({ navigation }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
-        {rooms.map((item, index) => (
+        {loading ? (
+          <View>
+            <SkeletonLargeCard />
+            <SkeletonLargeCard />
+            <SkeletonLargeCard />
+          </View>
+        ) : (
+          rooms.map((item, index) => (
             <MeetingRoomCard key={index} {...item} index={index} />
-        ))}
+          ))
+        )}
       </ScrollView>
     </DashboardLayout>
   );
@@ -329,7 +346,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 16,
-    backgroundColor: '#1F1F1F',
+    backgroundColor: 'rgba(128,128,128,0.3)',
   },
 });
 

@@ -4,12 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { FONTS, FONT_SIZE } from '../../theme/typography';
 import { SPACING, BORDER_RADIUS } from '../../theme/spacing';
 
-const GUESTS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
-  textSecondary: '#9CA3AF'
-};
+// Replaced GUESTS_THEME with global theme tokens
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '—';
@@ -27,25 +22,29 @@ const UserRowCard = ({ user, onView }) => {
   return (
     <Animated.View style={[
       styles.cardContainer, 
-      { backgroundColor: GUESTS_THEME.card, borderColor: GUESTS_THEME.border, transform: [{ scale: scaleAnim }] }
+      { 
+        backgroundColor: colors.surface, 
+        borderColor: colors.border, 
+        transform: [{ scale: scaleAnim }] 
+      }
     ]}>
        <View style={styles.grid}>
           
           {/* Left: Name / Email */}
           <View style={styles.colLeft}>
-             <Text style={styles.name} numberOfLines={1}>{user.name}</Text>
-             <Text style={styles.subtext} numberOfLines={1}>{user.email}</Text>
+             <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>{user.name}</Text>
+             <Text style={[styles.subtext, { color: colors.textSecondary }]} numberOfLines={1}>{user.email}</Text>
           </View>
 
           {/* Middle: Phone / Company */}
           <View style={styles.colMiddle}>
-             <Text style={styles.company} numberOfLines={1}>{user.company}</Text>
-             <Text style={styles.subtext}>{user.phone || 'No phone'}</Text>
+             <Text style={[styles.company, { color: colors.text }]} numberOfLines={1}>{user.company}</Text>
+             <Text style={[styles.subtext, { color: colors.textSecondary }]}>{user.phone || 'No phone'}</Text>
           </View>
 
           {/* Right: Date / Action */}
           <View style={styles.colRight}>
-             <Text style={styles.date}>{formatDate(user.createdAt)}</Text>
+             <Text style={[styles.date, { color: colors.textSecondary }]}>{formatDate(user.createdAt)}</Text>
              
              <Pressable 
                style={[styles.viewBtn, { backgroundColor: colors.primary }]}
@@ -96,24 +95,20 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.md,
-    color: '#FFF',
     marginBottom: 4
   },
   subtext: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZE.xs,
-    color: GUESTS_THEME.textSecondary
   },
   company: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZE.sm,
-    color: '#E5E7EB',
     marginBottom: 4
   },
   date: {
     fontFamily: FONTS.medium,
     fontSize: 10,
-    color: GUESTS_THEME.textSecondary,
     marginBottom: 8
   },
   viewBtn: {

@@ -25,7 +25,7 @@ const mockPosts = [
         comments: 5,
         viewCount: 89,
         createdAt: new Date(Date.now() - 18000000).toISOString(),
-        type: 'Events'
+        type: 'Event'
     },
     {
         id: '3',
@@ -37,7 +37,7 @@ const mockPosts = [
         comments: 8,
         viewCount: 320,
         createdAt: new Date(Date.now() - 3600000).toISOString(),
-        type: 'Announcements'
+        type: 'Announcement'
     }
 ];
 

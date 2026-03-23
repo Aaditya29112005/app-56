@@ -1,20 +1,43 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Appearance } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DARK_THEME, LIGHT_THEME, COLORS } from '../theme/colors';
 
 const ThemeContext = createContext();
+const THEME_KEY = '@app_theme';
 
 export const ThemeProvider = ({ children }) => {
-  // App will open in dark theme by default as per request
   const [isDark, setIsDark] = useState(true);
+  const [isReady, setIsReady] = useState(false);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
+  // Load persisted theme on mount
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(THEME_KEY);
+        if (saved !== null) {
+          setIsDark(saved === 'dark');
+        }
+      } catch (e) {
+        // Silently fail, use default
+      }
+      setIsReady(true);
+    };
+    loadTheme();
+  }, []);
+
+  const toggleTheme = async () => {
+    const newValue = !isDark;
+    setIsDark(newValue);
+    try {
+      await AsyncStorage.setItem(THEME_KEY, newValue ? 'dark' : 'light');
+    } catch (e) {
+      // Silently fail
+    }
   };
 
   const theme = isDark ? DARK_THEME : LIGHT_THEME;
 
-  // Merge brand colors with current theme colors
   const activeColors = {
     ...COLORS,
     ...theme,

@@ -20,14 +20,10 @@ import { usePrinterStore } from '../../store/usePrinterStore';
 import UploadBox from '../../components/Printer/UploadBox';
 import FilterDropdown from '../../components/FilterDropdown';
 
-const THEME = {
-  bg: '#000000',
-  card: '#1A1A1A',
-  border: '#1F1F1F',
-  accent: '#FF8A00',
-};
+
 
 const CreatePrinterRequestScreen = ({ navigation }) => {
+  const { colors, isDark } = useTheme();
   const { buildings, addRequest } = usePrinterStore();
   
   const [fileName, setFileName] = useState('');
@@ -72,15 +68,15 @@ const CreatePrinterRequestScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: THEME.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <X size={24} color="#FFF" />
+            <X size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>New Print Request</Text>
+          <Text style={[styles.title, { color: colors.text }]}>New Print Request</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -90,46 +86,46 @@ const CreatePrinterRequestScreen = ({ navigation }) => {
 
           <View style={styles.form}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Client Name *</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Client Name *</Text>
               <TextInput 
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                 placeholder="Enter client or member name"
-                placeholderTextColor="#64748B"
+                placeholderTextColor={colors.textMuted}
                 value={clientName}
                 onChangeText={setClientName}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Building *</Text>
-              <TouchableOpacity style={styles.picker} onPress={() => setShowBuildingPicker(true)}>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Building *</Text>
+              <TouchableOpacity style={[styles.picker, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => setShowBuildingPicker(true)}>
                 <View style={styles.pickerLeft}>
                   <Building2 size={18} color="#FF8A00" />
-                  <Text style={styles.pickerText}>{selectedBuilding.label}</Text>
+                  <Text style={[styles.pickerText, { color: colors.text }]}>{selectedBuilding.label}</Text>
                 </View>
-                <ChevronDown size={18} color="#64748B" />
+                <ChevronDown size={18} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Estimated Credits</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Estimated Credits</Text>
               <View style={styles.inputWithIcon}>
-                <HardDrive size={18} color="#64748B" style={styles.inputIcon} />
+                <HardDrive size={18} color={colors.textMuted} style={styles.inputIcon} />
                 <TextInput 
-                  style={[styles.input, { paddingLeft: 44 }]}
+                  style={[styles.input, { paddingLeft: 44, backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                   keyboardType="numeric"
                   value={credits}
                   onChangeText={setCredits}
                 />
               </View>
-              <Text style={styles.hintText}>Approx. 1 credit per page (Black & White)</Text>
+              <Text style={[styles.hintText, { color: colors.textMuted }]}>Approx. 1 credit per page (Black & White)</Text>
             </View>
 
           </View>
 
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
           <TouchableOpacity 
             style={[styles.submitBtn, (!fileName || isUploading) && styles.submitBtnDisabled]} 
             onPress={handleSubmit}
@@ -166,19 +162,19 @@ const CreatePrinterRequestScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SPACING.lg },
-  title: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF' },
+  title: { fontFamily: FONTS.bold, fontSize: 18 },
   content: { flex: 1, padding: SPACING.lg },
   form: { marginTop: 32, gap: 24 },
   inputGroup: { gap: 8 },
-  label: { fontFamily: FONTS.bold, fontSize: 13, color: '#A0A4AE', textTransform: 'uppercase' },
-  input: { height: 52, backgroundColor: '#151821', borderRadius: 14, borderWidth: 1, borderColor: '#232734', paddingHorizontal: 16, color: '#FFF', fontFamily: FONTS.medium, fontSize: 15 },
+  label: { fontFamily: FONTS.bold, fontSize: 13, textTransform: 'uppercase' },
+  input: { height: 52, borderRadius: 14, borderWidth: 1, paddingHorizontal: 16, fontFamily: FONTS.medium, fontSize: 15 },
   inputWithIcon: { position: 'relative' },
   inputIcon: { position: 'absolute', left: 16, top: 17, zIndex: 1 },
-  picker: { height: 52, backgroundColor: '#151821', borderRadius: 14, borderWidth: 1, borderColor: '#232734', paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  picker: { height: 52, borderRadius: 14, borderWidth: 1, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pickerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  pickerText: { fontFamily: FONTS.medium, fontSize: 15, color: '#FFF' },
-  hintText: { fontFamily: FONTS.medium, fontSize: 12, color: '#64748B', marginLeft: 4 },
-  footer: { padding: SPACING.lg, paddingBottom: 40, borderTopWidth: 1, borderTopColor: '#232734' },
+  pickerText: { fontFamily: FONTS.medium, fontSize: 15 },
+  hintText: { fontFamily: FONTS.medium, fontSize: 12, marginLeft: 4 },
+  footer: { padding: SPACING.lg, paddingBottom: 40, borderTopWidth: 1 },
   submitBtn: { height: 56, backgroundColor: '#FF8A00', borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
   submitBtnDisabled: { opacity: 0.5 },
   submitBtnText: { fontFamily: FONTS.bold, fontSize: 16, color: '#FFF' },

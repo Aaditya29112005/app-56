@@ -9,6 +9,7 @@ import { SPACING, BORDER_RADIUS } from '../../theme/spacing';
 import RFIDCardItem from '../../components/Cards/RFIDCardItem';
 import AssignClientModal from '../../components/Cards/AssignClientModal';
 import CardsFilterSheet from '../../components/Cards/CardsFilterSheet';
+import { SkeletonList } from '../../components/Skeleton/SkeletonLayouts';
 
 const MOCK_CARDS = [
   { id: '1', uid: '04:A2:7B:3F', tech: 'MIFARE Classic 1K', type: 'Key Fob', client: 'Acme Corp', companyUser: 'John Doe', status: 'active' },
@@ -64,7 +65,15 @@ const RFIDCardsScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [cards, setCards] = useState(MOCK_CARDS);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   
   // Selection
   const [selectedIds, setSelectedIds] = useState([]);
@@ -213,27 +222,33 @@ const RFIDCardsScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <FlatList
-        data={filteredCards}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <RFIDCardItem 
-            card={item}
-            isSelected={selectedIds.includes(item.id)}
-            onToggleSelect={handleToggleSelect}
-            onAssignPress={handleAssignSingle}
-          />
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Search size={48} color={colors.textMuted} style={{marginBottom: SPACING.md}} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No cards found</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Try adjusting your filters or search query.</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.listContent}>
+           <SkeletonList horizontal items={5} />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredCards}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <RFIDCardItem 
+              card={item}
+              isSelected={selectedIds.includes(item.id)}
+              onToggleSelect={handleToggleSelect}
+              onAssignPress={handleAssignSingle}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Search size={48} color={colors.textMuted} style={{marginBottom: SPACING.md}} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No cards found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Try adjusting your filters or search query.</Text>
+            </View>
+          }
+        />
+      )}
 
       <AssignClientModal 
         visible={isAssignModalVisible}

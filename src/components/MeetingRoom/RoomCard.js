@@ -5,9 +5,11 @@ import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';
 import MeetingStatusBadge from './MeetingStatusBadge';
 import Haptics from '../../utils/Haptics';
+import { useTheme } from '../../context/ThemeContext';
 
 const RoomCard = ({ room, onBook }) => {
-  const scaleAnim = new Animated.Value(1);
+  const { colors, isDark } = useTheme();
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const onPressIn = () => {
     Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
@@ -20,7 +22,7 @@ const RoomCard = ({ room, onBook }) => {
   const isDisabled = room.status.toLowerCase() === 'inactive';
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
+    <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }], backgroundColor: colors.surface, borderColor: colors.border }]}>
       <TouchableOpacity 
         activeOpacity={1}
         onPressIn={onPressIn}
@@ -30,10 +32,10 @@ const RoomCard = ({ room, onBook }) => {
       >
         <View style={styles.header}>
           <View style={styles.roomInfo}>
-            <Text style={styles.roomName}>{room.name} • {room.floor}</Text>
+            <Text style={[styles.roomName, { color: colors.text }]}>{room.name} • {room.floor}</Text>
             <View style={styles.buildingRow}>
-               <Building2 size={12} color="#94A3B8" />
-               <Text style={styles.buildingText}>{room.building}</Text>
+               <Building2 size={12} color={colors.textSecondary} />
+               <Text style={[styles.buildingText, { color: colors.textSecondary }]}>{room.building}</Text>
             </View>
           </View>
           <MeetingStatusBadge status={room.status} />
@@ -45,23 +47,26 @@ const RoomCard = ({ room, onBook }) => {
             <Text style={styles.metaText}>{room.capacity} Seats</Text>
           </View>
           <View style={styles.metaItem}>
-             <HardDrive size={14} color="#94A3B8" />
-             <Text style={styles.metaText}>₹{room.hourlyRate}/hour</Text>
+             <HardDrive size={14} color={colors.textSecondary} />
+             <Text style={[styles.metaText, { color: colors.text }]}>₹{room.hourlyRate}/hour</Text>
           </View>
         </View>
 
-        <View style={styles.footer}>
-           <TouchableOpacity 
-             style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]} 
-             onPress={() => {
-                Haptics.impactLight();
-                onBook(room);
-             }}
-             disabled={isDisabled}
-           >
-              <Text style={styles.bookBtnText}>{isDisabled ? 'Maintenance' : 'Book Now'}</Text>
-              {!isDisabled && <ChevronRight size={16} color="#FFF" />}
-           </TouchableOpacity>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+            <TouchableOpacity 
+              style={[
+                styles.bookBtn, 
+                isDisabled && { backgroundColor: isDark ? colors.surfaceElevated : colors.border }
+              ]} 
+              onPress={() => {
+                 Haptics.impactLight();
+                 onBook(room);
+              }}
+              disabled={isDisabled}
+            >
+               <Text style={[styles.bookBtnText, isDisabled && { color: colors.textMuted }]}>{isDisabled ? 'Maintenance' : 'Book Now'}</Text>
+               {!isDisabled && <ChevronRight size={16} color="#FFF" />}
+            </TouchableOpacity>
         </View>
 
       </TouchableOpacity>
@@ -71,22 +76,20 @@ const RoomCard = ({ room, onBook }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A1A1A',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#1F1F1F',
     marginBottom: SPACING.md,
     overflow: 'hidden',
   },
   content: { padding: SPACING.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  roomName: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF', marginBottom: 4 },
+  roomName: { fontFamily: FONTS.bold, fontSize: 18, marginBottom: 4 },
   buildingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  buildingText: { fontFamily: FONTS.medium, fontSize: 13, color: '#94A3B8' },
+  buildingText: { fontFamily: FONTS.medium, fontSize: 13 },
   metaGrid: { flexDirection: 'row', gap: 24, marginBottom: 20 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontFamily: FONTS.bold, fontSize: 13, color: '#F9FAFB' },
-  footer: { paddingTop: 16, borderTopWidth: 1, borderTopColor: '#334155' },
+  metaText: { fontFamily: FONTS.bold, fontSize: 13 },
+  footer: { paddingTop: 16, borderTopWidth: 1 },
   bookBtn: { 
     height: 48, 
     backgroundColor: '#F97316', 
@@ -96,7 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     gap: 8 
   },
-  bookBtnDisabled: { backgroundColor: '#334155', opacity: 0.5 },
+  bookBtnDisabled: { opacity: 0.5 },
   bookBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: '#FFF' },
 });
 

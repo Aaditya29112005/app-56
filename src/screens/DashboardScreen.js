@@ -7,7 +7,12 @@ import Animated, {
   withTiming, 
   withDelay,
   withSpring,
-  Easing 
+  withRepeat,
+  withSequence,
+  Easing,
+  FadeInDown,
+  FadeInRight,
+  Layout
 } from 'react-native-reanimated';
 import { Menu, ArrowUp } from 'lucide-react-native';
 import { COLORS } from '../theme/colors';
@@ -16,11 +21,35 @@ import DashboardLayout from '../components/DashboardLayout';
 import GlassCard from '../components/GlassCard';
 import Skeleton from '../components/Skeleton';
 import { useTheme } from '../context/ThemeContext';
+import { formatLiveDate } from '../utils/dateUtils';
 import Haptics from '../utils/Haptics';
+
+const AnimatedNumber = ({ value, style }) => {
+  const [displayValue, setDisplayValue] = useState('0');
+  const count = useSharedValue(0);
+
+  useEffect(() => {
+    count.value = withDelay(500, withTiming(value, {
+      duration: 2000,
+      easing: Easing.out(Easing.exp),
+    }));
+    
+    // Fallback for visual counting if we don't have ReText
+    const interval = setInterval(() => {
+      const current = Math.floor(count.value);
+      setDisplayValue(`₹${current.toLocaleString('en-IN')}`);
+      if (current >= value) clearInterval(interval);
+    }, 32);
+    return () => clearInterval(interval);
+  }, [value]);
+
+  return <Text style={style}>{displayValue}</Text>;
+};
 
 const AnimatedBar = ({ height, label, isHighlighted, delay }) => {
   const { colors, isDark } = useTheme();
   const animatedHeight = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     animatedHeight.value = withDelay(
@@ -30,10 +59,22 @@ const AnimatedBar = ({ height, label, isHighlighted, delay }) => {
         easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       })
     );
-  }, [height, delay]);
+
+    if (isHighlighted) {
+      scale.value = withRepeat(
+        withSequence(
+          withTiming(1.08, { duration: 1500 }),
+          withTiming(1, { duration: 1500 })
+        ),
+        -1,
+        true
+      );
+    }
+  }, [height, delay, isHighlighted]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     height: animatedHeight.value,
+    transform: [{ scale: scale.value }]
   }));
 
   return (
@@ -51,7 +92,7 @@ const AnimatedBar = ({ height, label, isHighlighted, delay }) => {
   );
 };
 
-const StatCard = ({ title, value, subValue, trend, trendColor, iconName, color, data, isLoading }) => {
+const StatCard = ({ title, value, subValue, trend, trendColor, iconName, color, data, isLoading, delay = 0 }) => {
   const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -60,10 +101,13 @@ const StatCard = ({ title, value, subValue, trend, trendColor, iconName, color, 
 
   if (isLoading) return <Skeleton width="48%" height={150} borderRadius={20} />;
 
+  const numericValue = parseInt(value, 10);
+  const isPercentage = value.includes('%');
+
   return (
     <TouchableOpacity
         activeOpacity={1}
-        onPressIn={() => (scale.value = withSpring(0.97))}
+        onPressIn={() => (scale.value = withSpring(0.96))}
         onPressOut={() => (scale.value = withSpring(1))}
         onPress={() => Haptics.impactLight()}
         style={styles.statCardWrapper}
@@ -72,8 +116,9 @@ const StatCard = ({ title, value, subValue, trend, trendColor, iconName, color, 
             <GlassCard style={styles.statCard}>
                 <View style={styles.statHeaderRow}>
                     <View style={styles.statInfoLeft}>
-                        <View style={[styles.statIconBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }]}>
+                        <View style={[styles.statIconBox, { backgroundColor: color + '15' }]}>
                             <Icon name={iconName} size={14} color={color} />
+                            <View style={[styles.iconGlow, { backgroundColor: color }]} />
                         </View>
                         <Text style={[styles.statLabel, { color: colors.textSecondary }]} numberOfLines={1}>{title}</Text>
                     </View>
@@ -83,29 +128,41 @@ const StatCard = ({ title, value, subValue, trend, trendColor, iconName, color, 
                 </View>
                 
                 <View style={styles.statValueRow}>
-                    <Text style={[styles.statHeroValue, { color: colors.text }]}>{value}</Text>
+                    {!isNaN(numericValue) ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                            <AnimatedNumber value={numericValue} style={[styles.statHeroValue, { color: colors.text }]} />
+                            {isPercentage && <Text style={[styles.statHeroValue, { color: colors.text, fontSize: 18 }]}>%</Text>}
+                        </View>
+                    ) : (
+                        <Text style={[styles.statHeroValue, { color: colors.text }]}>{value}</Text>
+                    )}
                 </View>
                 
                 <Text style={[styles.statHeroSub, { color: colors.textMuted }]}>{subValue}</Text>
 
                 <View style={styles.miniGraphRow}>
                     {data.map((h, i) => (
-                    <View 
+                      <MiniBar 
                         key={i} 
-                        style={[
-                        styles.miniBarPoint, 
-                        { 
-                            height: h, 
-                            backgroundColor: i === data.length - 1 ? color : (isDark ? '#3A3A3C' : '#E5E5EA'),
-                        }
-                        ]} 
-                    />
+                        height={h} 
+                        color={i === data.length - 1 ? color : (isDark ? '#3A3A3C' : '#E5E5EA')} 
+                        delay={delay + 400 + (i * 40)}
+                      />
                     ))}
                 </View>
             </GlassCard>
         </Animated.View>
     </TouchableOpacity>
   );
+};
+
+const MiniBar = ({ height, color, delay }) => {
+    const animatedHeight = useSharedValue(0);
+    useEffect(() => {
+        animatedHeight.value = withDelay(delay, withSpring(height, { damping: 12, stiffness: 100 }));
+    }, [height]);
+    const style = useAnimatedStyle(() => ({ height: animatedHeight.value }));
+    return <Animated.View style={[styles.miniBarPoint, { backgroundColor: color }, style]} />;
 };
 
 const DashboardScreen = ({ navigation }) => {
@@ -129,6 +186,28 @@ const DashboardScreen = ({ navigation }) => {
     { label: 'Sep', value: 100 },
   ];
 
+  const avatarScale = useSharedValue(1);
+  const headerFloat = useSharedValue(0);
+
+  useEffect(() => {
+    headerFloat.value = withRepeat(
+      withSequence(
+        withTiming(-2, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const headerFloatingStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: headerFloat.value }]
+  }));
+
+  const avatarAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: avatarScale.value }]
+  }));
+
   return (
     <DashboardLayout activeTab="Dashboard">
       <ScrollView 
@@ -136,9 +215,10 @@ const DashboardScreen = ({ navigation }) => {
         contentContainerStyle={styles.scrollContainer}
         style={styles.container}
       >
-        <View style={styles.topSection}>
+        <Animated.View entering={FadeInDown.duration(600)} style={styles.topSection}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <TouchableOpacity 
+              activeOpacity={0.7}
               onPress={() => {
                 Haptics.impactLight();
                 navigation.openDrawer();
@@ -149,17 +229,25 @@ const DashboardScreen = ({ navigation }) => {
             </TouchableOpacity>
             <View>
               <Text style={[styles.pageTitle, { color: colors.text }]}>Executive Insight</Text>
-              <Text style={[styles.pageSubtitle, { color: colors.textSecondary }]}>Wednesday, March 18  •  Ofis Square</Text>
+              <Animated.Text style={[styles.pageSubtitle, { color: colors.textSecondary }, headerFloatingStyle]}>
+                {formatLiveDate()}  •  Ofis Square
+              </Animated.Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.profileIndicator} onPress={() => Haptics.selection()}>
-            <View style={[styles.avatarBorder, { borderColor: colors.border }]}>
+          <TouchableOpacity 
+            activeOpacity={1} 
+            onPressIn={() => (avatarScale.value = withSpring(0.92))}
+            onPressOut={() => (avatarScale.value = withSpring(1))}
+            onPress={() => Haptics.selection()}
+          >
+            <Animated.View style={[styles.avatarBorder, { borderColor: colors.border }, avatarAnimatedStyle]}>
                 <View style={styles.avatarCore}>
                     <Text style={styles.avatarText}>N</Text>
                 </View>
-            </View>
+                <View style={styles.avatarActiveGlow} />
+            </Animated.View>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {isLoading ? (
           <View>
@@ -170,33 +258,37 @@ const DashboardScreen = ({ navigation }) => {
             </View>
           </View>
         ) : (
-          <>
-            <GlassCard style={styles.heroRevenueCard}>
-              <View style={styles.revenueTop}>
-                <View>
-                  <Text style={[styles.labelMuted, { color: colors.textSecondary }]}>MONTHLY REVENUE</Text>
-                  <Text style={[styles.heroDigit, { color: colors.text }]}>₹14,28,500</Text>
+          <React.Fragment>
+            <Animated.View entering={FadeInDown.duration(600).delay(200)} layout={Layout.springify()}>
+              <GlassCard style={styles.heroRevenueCard}>
+                <View style={styles.revenueTop}>
+                  <View>
+                    <Text style={[styles.labelMuted, { color: colors.textSecondary }]}>MONTHLY REVENUE</Text>
+                    <AnimatedNumber value={1428500} style={[styles.heroDigit, { color: colors.text }]} />
+                  </View>
+                  <Animated.View entering={FadeInRight.duration(600).delay(800)}>
+                    <View style={styles.growthBadge}>
+                      <Icon name="arrow-up" size={12} color="#34C759" />
+                      <Text style={styles.growthText}>+18.4%</Text>
+                    </View>
+                  </Animated.View>
                 </View>
-                <View style={styles.growthBadge}>
-                  <Icon name="arrow-up" size={12} color="#34C759" />
-                  <Text style={styles.growthText}>+18.4%</Text>
+
+                <View style={styles.revenueGraph}>
+                  {revenueData.map((item, i) => (
+                    <AnimatedBar 
+                      key={item.label}
+                      height={item.value}
+                      label={item.label}
+                      isHighlighted={item.label === 'Aug'}
+                      delay={400 + (i * 60)}
+                    />
+                  ))}
                 </View>
-              </View>
+              </GlassCard>
+            </Animated.View>
 
-              <View style={styles.revenueGraph}>
-                {revenueData.map((item, i) => (
-                  <AnimatedBar 
-                    key={item.label}
-                    height={item.value}
-                    label={item.label}
-                    isHighlighted={item.label === 'Aug'}
-                    delay={i * 60}
-                  />
-                ))}
-              </View>
-            </GlassCard>
-
-            <View style={styles.statsGrid}>
+            <Animated.View entering={FadeInDown.duration(600).delay(400)} style={styles.statsGrid}>
               <StatCard 
                 title="Occupancy"
                 value="92%"
@@ -207,6 +299,7 @@ const DashboardScreen = ({ navigation }) => {
                 color="#34C759"
                 data={[15, 25, 20, 35, 30, 45]}
                 isLoading={isLoading}
+                delay={600}
               />
               <StatCard 
                 title="Support"
@@ -218,9 +311,10 @@ const DashboardScreen = ({ navigation }) => {
                 color="#FF453A"
                 data={[35, 25, 40, 30, 45, 35]}
                 isLoading={isLoading}
+                delay={700}
               />
-            </View>
-          </>
+            </Animated.View>
+          </React.Fragment>
         )}
       </ScrollView>
     </DashboardLayout>
@@ -242,10 +336,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 28,
   },
+  menuBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   pageTitle: {
     fontSize: 26,
     fontFamily: FONTS.bold,
-    color: '#FFFFFF',
     letterSpacing: -0.6,
   },
   pageSubtitle: {
@@ -295,7 +395,6 @@ const styles = StyleSheet.create({
   labelMuted: {
     fontSize: 11,
     fontFamily: FONTS.bold,
-    color: '#A1A1AA',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -370,25 +469,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 8,
+    gap: 10,
   },
   statIconBox: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
+    width: 30,
+    height: 30,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  iconGlow: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0.2,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.bold,
-    color: '#A1A1AA',
     flex: 1,
   },
   statTrendPill: {
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   statTrendVal: {
     fontSize: 10,
@@ -398,26 +503,42 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statHeroValue: {
-    fontSize: 26,
+    fontSize: 28,
     fontFamily: FONTS.bold,
-    color: '#FFFFFF',
-    letterSpacing: -0.4,
+    letterSpacing: -0.6,
   },
   statHeroSub: {
     fontSize: 12,
     fontFamily: FONTS.medium,
-    color: '#71717A',
   },
   miniGraphRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    height: 32,
-    marginTop: 16,
-    gap: 4,
+    height: 38,
+    marginTop: 18,
+    gap: 5,
   },
   miniBarPoint: {
     flex: 1,
-    borderRadius: 2,
+    borderRadius: 3,
+  },
+  topInnerHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    zIndex: 1,
+  },
+  avatarActiveGlow: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: '#FF8A00',
+    opacity: 0.3,
   },
 });
 

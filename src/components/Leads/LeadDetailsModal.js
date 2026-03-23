@@ -5,29 +5,30 @@ import { useTheme } from '../../context/ThemeContext';
 import { FONTS, FONT_SIZE } from '../../theme/typography';
 import { SPACING, BORDER_RADIUS } from '../../theme/spacing';
 
-const LEADS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
-  textSecondary: '#9CA3AF'
+
+
+const SectionHeader = ({ title }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.sectionHeader}>
+      <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+      <View style={[styles.sectionLine, { backgroundColor: colors.border }]} />
+    </View>
+  );
 };
 
-const SectionHeader = ({ title }) => (
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    <View style={styles.sectionLine} />
-  </View>
-);
-
-const DetailRow = ({ label, value }) => (
-  <View style={styles.detailRow}>
-    <Text style={styles.detailLabel}>{label}</Text>
-    <Text style={styles.detailValue}>{value || '—'}</Text>
-  </View>
-);
+const DetailRow = ({ label, value }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+      <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.detailValue, { color: colors.text }]}>{value || '—'}</Text>
+    </View>
+  );
+};
 
 const LeadDetailsModal = ({ visible, lead, onClose }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const slideAnim = useRef(new Animated.Value(600)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -57,17 +58,17 @@ const LeadDetailsModal = ({ visible, lead, onClose }) => {
 
         <Animated.View style={[
           styles.modalSheet, 
-          { transform: [{ translateY: slideAnim }] }
+          { transform: [{ translateY: slideAnim }], backgroundColor: colors.background }
         ]}>
-          <View style={styles.dragHandle} />
+          <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
           
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View style={{flex: 1}}>
-              <Text style={styles.title}>{lead.firstName} {lead.lastName}</Text>
-              <Text style={styles.subtitle}>{lead.company || 'Independent Lead'}</Text>
+              <Text style={[styles.title, { color: colors.text }]}>{lead.firstName} {lead.lastName}</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{lead.company || 'Independent Lead'}</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <X size={20} color={LEADS_THEME.textSecondary} />
+            <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: colors.surface }]}>
+              <X size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -91,42 +92,45 @@ const LeadDetailsModal = ({ visible, lead, onClose }) => {
                    <Text style={[styles.highlightText, { color: colors.primary }]}>{lead.purpose}</Text>
                 </View>
              </View>
-             <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Current Status</Text>
-                <View style={[styles.highlightBadge, { backgroundColor: '#2A2D35' }]}>
-                   <Text style={[styles.highlightText, { color: '#D1D5DB' }]}>{lead.status}</Text>
-                </View>
-             </View>
+              <View style={styles.detailRow}>
+                 <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Current Status</Text>
+                 <View style={[styles.highlightBadge, { backgroundColor: isDark ? colors.surfaceElevated : colors.surface }]}>
+                    <Text style={[styles.highlightText, { color: colors.textSecondary }]}>{lead.status}</Text>
+                 </View>
+              </View>
              <DetailRow label="Tour Booked" value={lead.tourBooked ? 'Yes' : 'No'} />
 
              {/* KYC Verification */}
              <SectionHeader title="KYC Verification" />
-             <View style={styles.kycBox}>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md}}>
-                   {lead.kycStatus === 'Approved' ? <CheckCircle2 size={24} color="#10B981" /> : <Navigation size={24} color="#F59E0B" />}
-                   <View style={{marginLeft: 12}}>
-                      <Text style={styles.kycTitle}>ID VERIFICATION</Text>
-                      <Text style={[styles.kycStatus, { color: lead.kycStatus === 'Approved' ? '#10B981' : '#F59E0B' }]}>
-                        {lead.kycStatus === 'Approved' ? 'Verified & Approved' : 'Pending Document Upload'}
-                      </Text>
-                   </View>
-                </View>
+              <View style={[styles.kycBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                 <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md}}>
+                    {lead.kycStatus === 'Approved' ? <CheckCircle2 size={24} color="#10B981" /> : <Navigation size={24} color="#F59E0B" />}
+                    <View style={{marginLeft: 12}}>
+                       <Text style={[styles.kycTitle, { color: colors.text }]}>ID VERIFICATION</Text>
+                       <Text style={[styles.kycStatus, { color: lead.kycStatus === 'Approved' ? '#10B981' : '#F59E0B' }]}>
+                         {lead.kycStatus === 'Approved' ? 'Verified & Approved' : 'Pending Document Upload'}
+                       </Text>
+                    </View>
+                 </View>
 
                 {lead.kycStatus === 'Approved' && (
-                  <TouchableOpacity style={styles.viewDocBtn}>
-                     <FileText size={16} color="#FFF" style={{marginRight: 8}} />
-                     <Text style={styles.viewDocTxt}>View Document</Text>
+                  <TouchableOpacity style={[styles.viewDocBtn, { backgroundColor: colors.surfaceElevated }]}>
+                     <FileText size={16} color={colors.primary} style={{ marginRight: 8 }} />
+                     <Text style={[styles.viewDocTxt, { color: colors.primary }]}>View Documents</Text>
                   </TouchableOpacity>
                 )}
              </View>
 
           </ScrollView>
 
-          <View style={styles.footer}>
-             <TouchableOpacity style={[styles.footerBtn, { borderColor: LEADS_THEME.border }]} onPress={onClose}>
-                <Text style={styles.footerBtnTxt}>Close Details</Text>
+          <View style={[styles.footer, { borderTopColor: colors.border }]}>
+             <TouchableOpacity 
+               style={[styles.footerBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+               onPress={onClose}
+             >
+               <Text style={[styles.footerBtnTxt, { color: colors.textSecondary }]}>Close Details</Text>
              </TouchableOpacity>
-          </View>
+           </View>
 
         </Animated.View>
       </View>
@@ -138,7 +142,6 @@ const styles = StyleSheet.create({
   overlayContainer: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.75)' },
   modalSheet: {
-    backgroundColor: LEADS_THEME.bg,
     borderTopLeftRadius: BORDER_RADIUS.xl,
     borderTopRightRadius: BORDER_RADIUS.xl,
     paddingTop: SPACING.sm,
@@ -153,7 +156,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: LEADS_THEME.border,
     alignSelf: 'center',
     marginBottom: SPACING.md
   },
@@ -163,24 +165,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xl,
     paddingBottom: SPACING.lg,
     borderBottomWidth: 1,
-    borderBottomColor: LEADS_THEME.border
   },
   title: {
     fontFamily: FONTS.bold,
     fontSize: 22,
-    color: '#FFF',
     marginBottom: 4
   },
   subtitle: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZE.sm,
-    color: LEADS_THEME.textSecondary
   },
   closeBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: LEADS_THEME.card,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -197,7 +195,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.sm,
-    color: LEADS_THEME.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginRight: SPACING.md
@@ -205,7 +202,6 @@ const styles = StyleSheet.create({
   sectionLine: {
     flex: 1,
     height: 1,
-    backgroundColor: LEADS_THEME.border
   },
   detailRow: {
     flexDirection: 'row',
@@ -213,18 +209,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1A212D'
   },
   detailLabel: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZE.sm,
-    color: LEADS_THEME.textSecondary,
     flex: 0.4
   },
   detailValue: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.sm,
-    color: '#FFF',
     flex: 0.6,
     textAlign: 'right'
   },
@@ -238,9 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   kycBox: {
-    backgroundColor: LEADS_THEME.card,
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.xxl
@@ -248,7 +239,6 @@ const styles = StyleSheet.create({
   kycTitle: {
     fontFamily: FONTS.bold,
     fontSize: 12,
-    color: '#FFF',
     marginBottom: 2
   },
   kycStatus: {
@@ -259,21 +249,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1E2430',
     borderRadius: BORDER_RADIUS.md,
     paddingVertical: 10
   },
   viewDocTxt: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.sm,
-    color: '#FFF'
   },
   footer: {
     padding: SPACING.lg,
     paddingBottom: 30,
     borderTopWidth: 1,
-    borderTopColor: LEADS_THEME.border,
-    backgroundColor: LEADS_THEME.bg
   },
   footerBtn: {
     borderWidth: 1,
@@ -285,7 +271,6 @@ const styles = StyleSheet.create({
   footerBtnTxt: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.md,
-    color: '#FFF'
   }
 });
 

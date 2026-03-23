@@ -10,9 +10,10 @@ import {
   RefreshControl,
   LayoutAnimation,
   useWindowDimensions,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { 
   Search, 
   Building2, 
@@ -35,12 +36,7 @@ import AreaFormModal from '../components/Inventory/AreaFormModal';
 import FilterDropdown from '../components/FilterDropdown';
 import Haptics from '../utils/Haptics';
 
-const THEME = {
-  bg: '#000000',
-  card: '#1A1A1A',
-  border: '#1F1F1F',
-  accent: '#F97316',
-};
+
 
 const BUILDINGS = [
   { label: 'All Buildings', value: null },
@@ -67,10 +63,12 @@ const SORT_OPTS = [
 ];
 
 const CommonAreasScreen = ({ navigation }) => {
+  const { colors, isDark } = useTheme();
   const { width } = useWindowDimensions();
   const isTablet = width > 600;
 
   const { areas, loading, fetchAreas, addArea, updateArea, deleteArea, toggleStatus } = useCommonAreaStore();
+  const insets = useSafeAreaInsets();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -151,9 +149,9 @@ const CommonAreasScreen = ({ navigation }) => {
   };
 
   const renderFilterItem = (label, value, icon, onPress) => (
-    <TouchableOpacity style={styles.filterChip} onPress={onPress}>
+    <TouchableOpacity style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.surface }]} onPress={onPress}>
       {icon}
-      <Text style={styles.filterChipText}>{value || label}</Text>
+      <Text style={[styles.filterChipText, { color: colors.textSecondary }]}>{value || label}</Text>
     </TouchableOpacity>
   );
 
@@ -168,7 +166,7 @@ const CommonAreasScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       
       {/* Header */}
       <View style={styles.header}>
@@ -176,33 +174,40 @@ const CommonAreasScreen = ({ navigation }) => {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <TouchableOpacity 
               onPress={() => navigation.openDrawer()}
-              style={styles.menuBtn}
+              style={[styles.menuBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
             >
-               <Menu size={24} color="#FFF" />
+               <Menu size={24} color={colors.text} />
             </TouchableOpacity>
             <View>
-              <Text style={styles.title}>Common Areas</Text>
-              <Text style={styles.subtitle}>Manage your common areas and device access</Text>
+              <Text style={[styles.title, { color: colors.text }]}>Common Areas</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Manage your common areas and device access</Text>
             </View>
           </View>
-          <TouchableOpacity 
-            style={styles.addBtn}
-            onPress={() => {
-              setEditingArea(null);
-              setModalVisible(true);
-            }}
-          >
-             <Plus size={24} color="#FFF" />
-          </TouchableOpacity>
         </View>
 
+        <TouchableOpacity 
+          style={[
+            styles.addBtn, 
+            { 
+              top: Platform.OS === 'ios' ? insets.top + 10 : 20,
+              backgroundColor: '#F97316' 
+            }
+          ]}
+          onPress={() => {
+            setEditingArea(null);
+            setModalVisible(true);
+          }}
+        >
+           <Plus size={28} color="#FFF" />
+        </TouchableOpacity>
+
         <View style={styles.searchRow}>
-           <View style={styles.searchBox}>
-              <Search size={18} color="#64748B" />
+           <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Search size={18} color={colors.textMuted} />
               <TextInput 
-                style={styles.searchInput}
+                style={[styles.searchInput, { color: colors.text }]}
                 placeholder="Search by name, building..."
-                placeholderTextColor="#64748B"
+                placeholderTextColor={colors.textMuted}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -221,7 +226,7 @@ const CommonAreasScreen = ({ navigation }) => {
       {/* Result Meta */}
       <View style={styles.metaRow}>
          <View style={styles.metaLeft}>
-            <Text style={styles.countText}>Showing {filteredAreas.length} of {areas.length} zones</Text>
+            <Text style={[styles.countText, { color: colors.textMuted }]}>Showing {filteredAreas.length} of {areas.length} zones</Text>
          </View>
          {(selectedBuilding.value || selectedType.value || searchQuery) && (
            <TouchableOpacity onPress={handleClearAll}>
@@ -237,13 +242,13 @@ const CommonAreasScreen = ({ navigation }) => {
            {filteredAreas.map((area, idx) => (
              <TouchableOpacity 
                key={area.id} 
-               style={[styles.tableRow, styles.tableDataRow]}
+               style={[styles.tableRow, styles.tableDataRow, { borderBottomColor: colors.border }]}
                onPress={() => { setEditingArea(area); setModalVisible(true); }}
              >
-                <Text style={[styles.col, styles.colName, styles.tableDataText]}>{area.name}</Text>
-                <Text style={[styles.col, styles.colBuild, styles.tableDataText]}>{area.building}</Text>
-                <Text style={[styles.col, styles.colType, styles.tableDataText]}>{area.type}</Text>
-                <Text style={[styles.col, styles.colDev, styles.tableDataText]}>{area.devices?.length || 0}</Text>
+                <Text style={[styles.col, styles.colName, styles.tableDataText, { color: colors.text }]}>{area.name}</Text>
+                <Text style={[styles.col, styles.colBuild, styles.tableDataText, { color: colors.text }]}>{area.building}</Text>
+                <Text style={[styles.col, styles.colType, styles.tableDataText, { color: colors.text }]}>{area.type}</Text>
+                <Text style={[styles.col, styles.colDev, styles.tableDataText, { color: colors.text }]}>{area.devices?.length || 0}</Text>
                 <View style={[styles.col, styles.colStatus]}>
                    <CommonAreaStatusBadge status={area.status} />
                 </View>
@@ -256,7 +261,7 @@ const CommonAreasScreen = ({ navigation }) => {
           keyExtractor={(item, index) => loading ? `skeleton-${index}` : item.id}
           renderItem={({ item }) => (
             loading ? (
-              <View style={styles.skeletonCard} />
+              <View style={[styles.skeletonCard, { backgroundColor: colors.surface }]} />
             ) : (
               <CommonAreaCard 
                 area={item} 
@@ -267,12 +272,12 @@ const CommonAreasScreen = ({ navigation }) => {
             )
           )}
           contentContainerStyle={styles.listContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.accent} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Info size={48} color="#232734" />
-              <Text style={styles.emptyTitle}>No areas found</Text>
-              <Text style={styles.emptySubtitle}>Adjust your filters to see more results.</Text>
+              <Info size={48} color={colors.textMuted} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No areas found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Adjust your filters to see more results.</Text>
             </View>
           }
         />
@@ -313,35 +318,49 @@ const CommonAreasScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.bg },
-  header: { padding: SPACING.lg, gap: 16 },
+  container: { flex: 1 },
+  header: { paddingVertical: SPACING.lg, paddingHorizontal: 24, gap: 16 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  title: { fontFamily: FONTS.bold, fontSize: 24, color: '#FFF' },
-  subtitle: { fontFamily: FONTS.medium, fontSize: 13, color: '#94A3B8', marginTop: 4 },
-  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F97316', alignItems: 'center', justifyContent: 'center' },
-  menuBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#1E293B', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#334155' },
+  title: { fontFamily: FONTS.bold, fontSize: 24 },
+  subtitle: { fontFamily: FONTS.medium, fontSize: 13, marginTop: 4 },
+  addBtn: { 
+    position: 'absolute',
+    right: 16,
+    width: 56, 
+    height: 56, 
+    borderRadius: 28, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    zIndex: 100,
+    elevation: 10,
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  menuBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   searchRow: { marginTop: 4 },
-  searchBox: { flexDirection: 'row', alignItems: 'center', height: 48, backgroundColor: '#1E293B', borderRadius: 14, borderWidth: 1, borderColor: '#334155', paddingHorizontal: 12 },
-  searchInput: { flex: 1, marginLeft: 10, fontFamily: FONTS.medium, fontSize: 14, color: '#FFF' },
+  searchBox: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 14, borderWidth: 1, paddingHorizontal: 12 },
+  searchInput: { flex: 1, marginLeft: 10, fontFamily: FONTS.medium, fontSize: 14 },
   filtersContainer: { marginTop: 4 },
   filtersScroll: { gap: 10, paddingRight: 20 },
-  filterChip: { flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: '#334155', backgroundColor: '#111827', gap: 8 },
-  filterChipText: { fontFamily: FONTS.bold, fontSize: 12, color: '#94A3B8' },
+  filterChip: { flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, gap: 8 },
+  filterChipText: { fontFamily: FONTS.bold, fontSize: 12 },
   metaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: SPACING.lg, marginBottom: 12 },
-  countText: { fontFamily: FONTS.medium, fontSize: 12, color: '#64748B' },
+  countText: { fontFamily: FONTS.medium, fontSize: 12 },
   clearBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: '#F97316' },
   listContent: { padding: SPACING.lg, paddingBottom: 100 },
-  skeletonCard: { height: 160, backgroundColor: '#1E293B', borderRadius: 18, marginBottom: 16, opacity: 0.5 },
+  skeletonCard: { height: 160, borderRadius: 18, marginBottom: 16, opacity: 0.5 },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingTop: 100, gap: 16 },
-  emptyTitle: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF' },
-  emptySubtitle: { fontFamily: FONTS.medium, fontSize: 14, color: '#64748B' },
+  emptyTitle: { fontFamily: FONTS.bold, fontSize: 18 },
+  emptySubtitle: { fontFamily: FONTS.medium, fontSize: 14 },
   
   // Tablet Table Styles
   tableContainer: { paddingHorizontal: SPACING.lg },
-  tableRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1F2937' },
+  tableRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.1)' },
   tableDataRow: { paddingVertical: 16 },
-  col: { fontFamily: FONTS.bold, fontSize: 11, color: '#64748B', letterSpacing: 1 },
-  tableDataText: { fontSize: 13, color: '#FFF', fontFamily: FONTS.medium, letterSpacing: 0 },
+  col: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 1 },
+  tableDataText: { fontSize: 13, fontFamily: FONTS.medium, letterSpacing: 0 },
   colName: { flex: 2 },
   colBuild: { flex: 1.5 },
   colType: { flex: 1 },

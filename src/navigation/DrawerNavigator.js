@@ -19,11 +19,13 @@ import PrinterRequestsScreen from '../screens/PrinterRequestsScreen'; // Old one
 import CabinsScreen from '../screens/CabinsScreen';
 import GenericScreen from '../screens/GenericScreen';
 import { COLORS } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import Sidebar from '../components/Sidebar';
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+  const { colors } = useTheme();
   return (
     <Drawer.Navigator
       drawerContent={(props) => (
@@ -36,6 +38,7 @@ const DrawerNavigator = () => {
                   props.navigation.navigate(id);
               }
           }} 
+          onLogout={() => props.navigation.replace('Login')}
         />
       )}
       screenOptions={{
@@ -43,7 +46,7 @@ const DrawerNavigator = () => {
         drawerActiveTintColor: COLORS.primary,
         drawerInactiveTintColor: COLORS.grey,
         drawerStyle: {
-          backgroundColor: '#0A0A0B',
+          backgroundColor: colors.background,
           width: 280,
         },
       }}

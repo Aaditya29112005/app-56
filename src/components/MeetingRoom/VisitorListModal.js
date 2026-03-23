@@ -11,29 +11,29 @@ const VisitorListModal = ({ visible, onClose, visitors, bookingTitle }) => {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={[styles.card, { backgroundColor: isDark ? '#111827' : colors.card, borderColor: isDark ? '#1F2937' : colors.border }]}>
-          <View style={[styles.header, { borderBottomColor: isDark ? '#1F2937' : colors.border }]}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View>
-              <Text style={[styles.title, { color: '#FFF' }]}>Visitors</Text>
-              <Text style={[styles.subtitle, { color: '#94A3B8' }]}>{bookingTitle}</Text>
+              <Text style={[styles.title, { color: colors.text }]}>Visitors</Text>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>{bookingTitle}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <X size={20} color="#64748B" />
+              <X size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
             {visitors && visitors.length > 0 ? (
               visitors.map((v, idx) => (
-                <View key={idx} style={[styles.visitorRow, { borderBottomColor: isDark ? '#1F2937' : '#F1F5F9' }]}>
-                  <View style={styles.avatar}>
-                    <User size={18} color="#F97316" />
+                <View key={idx} style={[styles.visitorRow, { borderBottomColor: colors.border }]}>
+                  <View style={[styles.avatar, { backgroundColor: `${colors.primary}15` }]}>
+                    <User size={18} color={colors.primary} />
                   </View>
                   <View style={styles.info}>
-                    <Text style={[styles.name, { color: '#FFF' }]}>{v.name}</Text>
+                    <Text style={[styles.name, { color: colors.text }]}>{v.name}</Text>
                     <View style={styles.meta}>
-                      <Mail size={10} color="#64748B" />
-                      <Text style={styles.metaText}>{v.email || 'No email'}</Text>
+                      <Mail size={10} color={colors.textSecondary} />
+                      <Text style={[styles.metaText, { color: colors.textSecondary }]}>{v.email || 'No email'}</Text>
                     </View>
                   </View>
                   <View style={[styles.status, { backgroundColor: v.status === 'checked_in' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(249, 115, 22, 0.1)' }]}>
@@ -48,8 +48,8 @@ const VisitorListModal = ({ visible, onClose, visitors, bookingTitle }) => {
             )}
           </ScrollView>
 
-          <TouchableOpacity style={styles.closeAction} onPress={onClose}>
-            <Text style={styles.closeActionText}>Close</Text>
+          <TouchableOpacity style={[styles.closeAction, { backgroundColor: colors.surfaceElevated }]} onPress={onClose}>
+            <Text style={[styles.closeActionText, { color: colors.text }]}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -70,13 +70,13 @@ const styles = StyleSheet.create({
   info: { flex: 1 },
   name: { fontFamily: FONTS.bold, fontSize: 14 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  metaText: { fontFamily: FONTS.medium, fontSize: 11, color: '#64748B' },
+  metaText: { fontFamily: FONTS.medium, fontSize: 11 },
   status: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   statusText: { fontFamily: FONTS.bold, fontSize: 9, textTransform: 'uppercase' },
   empty: { padding: 40, alignItems: 'center' },
-  emptyText: { fontFamily: FONTS.medium, fontSize: 14, color: '#64748B' },
-  closeAction: { margin: 20, height: 48, borderRadius: 12, backgroundColor: '#1F2937', alignItems: 'center', justifyContent: 'center' },
-  closeActionText: { fontFamily: FONTS.bold, fontSize: 14, color: '#FFF' },
+  emptyText: { fontFamily: FONTS.medium, fontSize: 14 },
+  closeAction: { margin: 20, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  closeActionText: { fontFamily: FONTS.bold, fontSize: 14 },
 });
 
 export default VisitorListModal;

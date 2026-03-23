@@ -13,15 +13,15 @@ const LEADS_THEME = {
 };
 
 const StatusBadge = ({ status }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const lower = status?.toLowerCase() || '';
 
-  let bgColor = '#2A2A2A';
-  let textColor = '#A0A0A0';
-
+  let bgColor = colors.surfaceElevated;
+  let textColor = colors.textSecondary;
+ 
   if (lower === 'new') {
-    bgColor = '#2A2D35';
-    textColor = '#D1D5DB';
+    bgColor = isDark ? '#2A2D35' : '#E5E7EB';
+    textColor = colors.textSecondary;
   } else if (lower === 'approved' || lower === 'qualified') {
     bgColor = `${colors.primary}20`; // 20% opacity
     textColor = colors.primary;
@@ -44,7 +44,7 @@ const StatusBadge = ({ status }) => {
 };
 
 const LeadCard = ({ lead, onView }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
@@ -58,17 +58,21 @@ const LeadCard = ({ lead, onView }) => {
     >
       <Animated.View style={[
         styles.cardContainer, 
-        { backgroundColor: LEADS_THEME.card, borderColor: LEADS_THEME.border, transform: [{ scale: scaleAnim }] }
+        { 
+          backgroundColor: isDark ? colors.surface : colors.surface, 
+          borderColor: colors.border, 
+          transform: [{ scale: scaleAnim }] 
+        }
       ]}>
         
         {/* Top Header */}
         <View style={styles.header}>
            <View style={{flex: 1, paddingRight: 8}}>
-              <Text style={styles.name}>{lead.firstName} {lead.lastName}</Text>
+              <Text style={[styles.name, { color: colors.text }]}>{lead.firstName} {lead.lastName}</Text>
               {lead.company ? (
                 <View style={styles.iconRow}>
-                   <Building2 size={12} color={LEADS_THEME.textSecondary} />
-                   <Text style={[styles.companyText, { color: LEADS_THEME.textSecondary }]}>{lead.company}</Text>
+                   <Building2 size={12} color={colors.textSecondary} />
+                   <Text style={[styles.companyText, { color: colors.textSecondary }]}>{lead.company}</Text>
                 </View>
               ) : null}
            </View>
@@ -81,18 +85,18 @@ const LeadCard = ({ lead, onView }) => {
         <View style={styles.contentRow}>
            <View style={styles.col}>
               <View style={styles.iconRow}>
-                <Mail size={12} color={LEADS_THEME.textSecondary} />
-                <Text style={styles.detailText} numberOfLines={1}>{lead.email}</Text>
+                <Mail size={12} color={colors.textSecondary} />
+                <Text style={[styles.detailText, { color: colors.text }]} numberOfLines={1}>{lead.email}</Text>
               </View>
               <View style={styles.iconRow}>
-                <Phone size={12} color={LEADS_THEME.textSecondary} />
-                <Text style={styles.detailText}>{lead.phone}</Text>
+                <Phone size={12} color={colors.textSecondary} />
+                <Text style={[styles.detailText, { color: colors.text }]}>{lead.phone}</Text>
               </View>
            </View>
            
            <View style={[styles.col, {alignItems: 'flex-end', justifyContent: 'center'}]}>
-              <Text style={[styles.labelText, { color: LEADS_THEME.textSecondary }]}>Purpose</Text>
-              <Text style={styles.purposeText}>{lead.purpose}</Text>
+              <Text style={[styles.labelText, { color: colors.textSecondary }]}>Purpose</Text>
+              <Text style={[styles.purposeText, { color: colors.text }]}>{lead.purpose}</Text>
            </View>
         </View>
 
@@ -100,8 +104,8 @@ const LeadCard = ({ lead, onView }) => {
         <View style={styles.footer}>
            <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <View style={[styles.kycDot, { backgroundColor: lead.kycStatus === 'Approved' ? '#10B981' : '#F59E0B' }]} />
-              <Text style={styles.kycText}>KYC: {lead.kycStatus === 'Approved' ? 'Verified' : 'Pending'}</Text>
-           </View>
+              <Text style={[styles.kycText, { color: colors.textSecondary }]}>KYC: {lead.kycStatus === 'Approved' ? 'Verified' : 'Pending'}</Text>
+            </View>
 
            <View style={[styles.viewBtn, { backgroundColor: colors.primary }]}>
              <Text style={styles.viewBtnText}>View Details</Text>
@@ -134,7 +138,6 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.lg,
-    color: '#FFF',
     marginBottom: 4
   },
   iconRow: {
@@ -149,7 +152,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: LEADS_THEME.border,
+    backgroundColor: 'rgba(128,128,128,0.1)',
     marginVertical: SPACING.sm
   },
   contentRow: {
@@ -163,7 +166,6 @@ const styles = StyleSheet.create({
   detailText: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZE.xs,
-    color: '#FFF',
     marginLeft: 6
   },
   labelText: {
@@ -175,8 +177,7 @@ const styles = StyleSheet.create({
   },
   purposeText: {
     fontFamily: FONTS.bold,
-    fontSize: FONT_SIZE.sm,
-    color: '#FFF'
+    fontSize: FONT_SIZE.sm
   },
   footer: {
     flexDirection: 'row',

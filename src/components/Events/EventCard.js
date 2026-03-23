@@ -15,47 +15,69 @@ const EventCard = ({ event, onEdit, onDelete, onRSVP }) => {
   };
 
   return (
-    <View style={[styles.card, { backgroundColor: isDark ? '#151922' : colors.card, borderColor: isDark ? '#1E2430' : colors.border }]}>
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       
+      {/* Header: Title and Status */}
       <View style={styles.header}>
         <View style={styles.titleArea}>
-           <Text style={[styles.title, { color: '#FFF' }]}>{event.title}</Text>
-           <View style={[styles.categoryTag, { backgroundColor: 'rgba(249, 115, 22, 0.1)' }]}>
-             <Text style={styles.categoryText}>{event.category}</Text>
+           <Text style={[styles.title, { color: colors.text }]}>{event.title}</Text>
+           <View style={styles.iconRow}>
+              <Users size={12} color={colors.primary} />
+              <Text style={[styles.categorySubtitle, { color: colors.textSecondary }]}>{event.category}</Text>
            </View>
         </View>
-        <StatusBadge status={event.status} />
-      </View>
-
-      <Text style={[styles.desc, { color: '#94A3B8' }]} numberOfLines={2}>
-        {event.description}
-      </Text>
-
-      <View style={styles.metaRow}>
-        <View style={styles.metaItem}>
-          <Calendar size={14} color="#64748B" />
-          <Text style={styles.metaText}>{formatDateTime(event.start)}</Text>
-        </View>
-        <View style={styles.metaItem}>
-          <MapPin size={14} color="#64748B" />
-          <Text style={styles.metaText} numberOfLines={1}>{event.location}</Text>
+        <View style={{ alignItems: 'flex-end', gap: 8 }}>
+          <StatusBadge status={event.status} />
+          <View style={styles.actionGroupTop}>
+             <TouchableOpacity onPress={() => onEdit(event)}>
+               <Edit2 size={14} color={colors.textSecondary} />
+             </TouchableOpacity>
+             <TouchableOpacity onPress={() => onDelete(event.id)}>
+               <Trash2 size={14} color="#EF4444" />
+             </TouchableOpacity>
+          </View>
         </View>
       </View>
 
-      <View style={[styles.footer, { borderTopColor: isDark ? '#1E2430' : colors.border }]}>
-        <TouchableOpacity style={styles.rsvpBtn} onPress={() => onRSVP(event)}>
-          <Users size={16} color="#F97316" />
-          <Text style={styles.rsvpBtnText}>View RSVPs</Text>
-        </TouchableOpacity>
-        
-        <View style={styles.actionGroup}>
-           <TouchableOpacity style={styles.actionBtn} onPress={() => onEdit(event)}>
-             <Edit2 size={16} color="#94A3B8" />
-           </TouchableOpacity>
-           <TouchableOpacity style={styles.actionBtn} onPress={() => onDelete(event.id)}>
-             <Trash2 size={16} color="#EF4444" />
-           </TouchableOpacity>
-        </View>
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+      {/* Content Columns */}
+      <View style={styles.contentRow}>
+         {/* Left Col: Meta Info */}
+         <View style={styles.colLeft}>
+            <View style={styles.metaInfoItem}>
+               <Calendar size={12} color={colors.textSecondary} />
+               <Text style={[styles.metaInfoText, { color: colors.text }]} numberOfLines={1}>{formatDateTime(event.start)}</Text>
+            </View>
+            <View style={styles.metaInfoItem}>
+               <MapPin size={12} color={colors.textSecondary} />
+               <Text style={[styles.metaInfoText, { color: colors.text }]} numberOfLines={1}>{event.location}</Text>
+            </View>
+         </View>
+         
+         {/* Right Col: Description (Short) */}
+         <View style={styles.colRight}>
+            <Text style={[styles.columnLabel, { color: colors.textSecondary }]}>Description</Text>
+            <Text style={[styles.columnValue, { color: colors.text }]} numberOfLines={2}>{event.description}</Text>
+         </View>
+      </View>
+
+      {/* Footer: RSVP Count and Main Action */}
+      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+         <View style={styles.footerLeft}>
+            <View style={[styles.statusDot, { backgroundColor: event.status === 'PUBLISHED' ? '#10B981' : '#F59E0B' }]} />
+            <Text style={[styles.footerStatusText, { color: colors.textSecondary }]}>
+               {event.attendeeCount || 0} RSVPs So Far
+            </Text>
+         </View>
+
+         <TouchableOpacity 
+           style={[styles.mainActionBtn, { backgroundColor: colors.primary }]} 
+           onPress={() => onRSVP(event)}
+         >
+            <Text style={styles.mainActionBtnText}>View RSVPs</Text>
+            <ChevronRight size={14} color="#FFF" style={{ marginLeft: 6 }} />
+         </TouchableOpacity>
       </View>
 
     </View>
@@ -64,86 +86,118 @@ const EventCard = ({ event, onEdit, onDelete, onRSVP }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#1F1F1F',
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.md,
     marginBottom: SPACING.md,
-    overflow: 'hidden',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
   },
   titleArea: {
     flex: 1,
-    marginRight: 10,
+    paddingRight: 8,
   },
   title: {
     fontFamily: FONTS.bold,
-    fontSize: 18,
-    marginBottom: 6,
+    fontSize: FONT_SIZE.lg,
+    marginBottom: 4,
   },
-  categoryTag: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  categoryText: {
-    fontFamily: FONTS.bold,
-    fontSize: 10,
-    color: '#F97316',
-    textTransform: 'uppercase',
-  },
-  desc: {
-    fontFamily: FONTS.medium,
-    fontSize: 13,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 16,
-  },
-  metaItem: {
+  iconRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  metaText: {
+  categorySubtitle: {
     fontFamily: FONTS.medium,
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: FONT_SIZE.sm,
+  },
+  actionGroupTop: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 4,
+  },
+  divider: {
+    height: 1,
+    marginVertical: SPACING.sm,
+    opacity: 0.1,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
+  },
+  colLeft: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  metaInfoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  metaInfoText: {
+    fontFamily: FONTS.regular,
+    fontSize: FONT_SIZE.xs,
+  },
+  colRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  columnLabel: {
+    fontFamily: FONTS.medium,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  columnValue: {
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZE.sm,
+    textAlign: 'right',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 16,
+    marginTop: SPACING.xs,
+    paddingTop: SPACING.sm,
     borderTopWidth: 1,
   },
-  rsvpBtn: {
+  footerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  rsvpBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: '#F97316',
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
   },
-  actionGroup: {
+  footerStatusText: {
+    fontFamily: FONTS.medium,
+    fontSize: 11,
+  },
+  mainActionBtn: {
     flexDirection: 'row',
-    gap: 12,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: BORDER_RADIUS.full,
   },
-  actionBtn: {
-    padding: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 8,
+  mainActionBtnText: {
+    fontFamily: FONTS.bold,
+    fontSize: 12,
+    color: '#FFF',
   },
 });
 

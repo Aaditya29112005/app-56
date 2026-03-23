@@ -1,365 +1,311 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  SafeAreaView,
+  StatusBar,
+  Alert
+} from 'react-native';
 import Animated, { 
-    useSharedValue, 
-    useAnimatedStyle, 
-    withSpring, 
-    withTiming,
-    interpolateColor
+  FadeInDown,
+  Layout
 } from 'react-native-reanimated';
-import { useTheme } from '../context/ThemeContext';
-import { COLORS } from '../theme/colors';
+import { Calendar, Cloud, Building2, LogOut, ShieldCheck, FileText, Headphones, ArrowRight } from 'lucide-react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { FONTS } from '../theme/typography';
 import DashboardLayout from '../components/DashboardLayout';
-import GlassCard from '../components/GlassCard';
-import PremiumButton from '../components/PremiumButton';
-import Haptics from '../utils/Haptics';
+import ProfileCard from '../components/Profile/ProfileCard';
+import PreferenceItem from '../components/Profile/PreferenceItem';
+import AccountSkeleton from '../components/Profile/AccountSkeleton';
+import EditProfileModal from '../modals/EditProfileModal';
+import { useTheme } from '../context/ThemeContext';
 
-const { width } = Dimensions.get('window');
-
-const PremiumToggle = ({ value, onValueChange }) => {
-    const { colors, isDark } = useTheme();
-    const animation = useSharedValue(value ? 1 : 0);
-
-    // Update animation dynamically if value changes from props
-    React.useEffect(() => {
-        animation.value = withTiming(value ? 1 : 0, { duration: 250 });
-    }, [value]);
-
-    const toggleOn = () => {
-        Haptics.impactLight();
-        onValueChange(!value);
-    };
-
-    const trackStyle = useAnimatedStyle(() => {
-        const backgroundColor = interpolateColor(
-            animation.value,
-            [0, 1],
-            [colors.border, colors.primary]
-        );
-        return { backgroundColor };
-    });
-
-    const thumbStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateX: withSpring(animation.value * 20, { damping: 15, stiffness: 120 }) }]
-        };
-    });
-
-    return (
-        <TouchableOpacity activeOpacity={1} onPress={toggleOn}>
-            <Animated.View style={[styles.customTrack, trackStyle, { borderColor: colors.border }]}>
-                <Animated.View style={[styles.customThumb, thumbStyle, { backgroundColor: isDark ? '#FFF' : '#FFF' }]} />
-            </Animated.View>
-        </TouchableOpacity>
-    );
-};
-
-const ActionCard = ({ icon, label, onPress }) => {
-    const { colors } = useTheme();
-    const scale = useSharedValue(1);
-    
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }]
-    }));
-
-    return (
-        <TouchableOpacity 
-            activeOpacity={1}
-            onPressIn={() => (scale.value = withSpring(0.97))}
-            onPressOut={() => (scale.value = withSpring(1))}
-            onPress={() => {
-                Haptics.selection();
-                if (onPress) onPress();
-            }}
-            style={styles.actionCardWrapper}
-        >
-            <Animated.View style={[styles.actionCard, { backgroundColor: colors.surface, borderColor: colors.border }, animatedStyle]}>
-                <Icon name={icon} size={22} color={COLORS.primary} style={styles.actionIcon} />
-                <Text style={[styles.actionLabel, { color: colors.text }]}>{label}</Text>
-            </Animated.View>
-        </TouchableOpacity>
-    );
-};
-
-const ProfileScreen = ({ navigation }) => {
+const AccountSettingsScreen = ({ navigation }) => {
   const { colors, isDark, toggleTheme } = useTheme();
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    name: "Nasir Ansari",
+    role: "Regional Administrator",
+    email: "nasir@ofissquare.com",
+    mobile: "+91 98765 43210"
+  });
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [biometrics, setBiometrics] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleLogout = () => {
-    Haptics.impactMedium();
-    navigation.replace('Login');
+    ReactNativeHapticFeedback.trigger('notificationError');
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Sign Out", 
+          style: "destructive",
+          onPress: () => navigation.replace('Login')
+        }
+      ]
+    );
   };
 
-  return (
-    <DashboardLayout 
-        activeTab="Profile" 
-        onTabPress={(id) => {
-            Haptics.selection();
-            navigation.navigate(id);
-        }}
+  const handleSecurityAction = (title) => {
+    ReactNativeHapticFeedback.trigger('impactLight');
+    Alert.alert(
+      title,
+      "This section is currently under maintenance. Please check back soon.",
+      [{ text: "OK" }]
+    );
+  };
+
+  const renderHeader = () => (
+    <Animated.View entering={FadeInDown.duration(600).delay(100)} style={styles.header}>
+
+      
+      <Text style={[styles.pageTitle, { color: colors.text }]}>Account Settings</Text>
+      <Text style={[styles.pageSubtitle, { color: colors.textSecondary }]}>Personalize your workspace experience</Text>
+    </Animated.View>
+  );
+
+  const SectionTitle = ({ title, delay }) => (
+    <Animated.Text 
+      entering={FadeInDown.duration(600).delay(delay)} 
+      style={[styles.sectionTitle, { color: colors.textMuted }]}
     >
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-            <View>
-                <Text style={[styles.title, { color: colors.text }]}>Account Settings</Text>
-                <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Personalize your workspace experience</Text>
-            </View>
-        </View>
+      {title}
+    </Animated.Text>
+  );
 
-        <GlassCard style={styles.profileInfoCard}>
-            <View style={styles.profileHeader}>
-                <View style={styles.avatarBig}>
-                    <Text style={styles.avatarInitial}>N</Text>
-                </View>
-                <View style={styles.userMeta}>
-                    <Text style={[styles.userName, { color: colors.text }]}>Nasir Ansari</Text>
-                    <Text style={[styles.userRole, { color: colors.textSecondary }]}>Regional Administrator</Text>
-                </View>
-                <TouchableOpacity style={[styles.editBtn, { borderColor: colors.border }]} onPress={() => Haptics.selection()}>
-                    <Text style={[styles.editBtnText, { color: colors.text }]}>Edit</Text>
+  const ActionRow = ({ icon: Icon, title, onPress, delay }) => (
+    <Animated.View entering={FadeInDown.duration(600).delay(delay)}>
+      <TouchableOpacity 
+        style={styles.actionRow} 
+        onPress={() => onPress ? onPress() : handleSecurityAction(title)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.actionLeft}>
+          <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(255, 138, 0, 0.08)' : 'rgba(255, 138, 0, 0.1)', borderColor: 'rgba(255, 138, 0, 0.1)' }]}>
+            <Icon size={18} color="#FF8A00" />
+          </View>
+          <Text style={[styles.actionTitle, { color: colors.text }]}>{title}</Text>
+        </View>
+        <ArrowRight size={18} color={colors.textSecondary} />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+
+  return (
+    <DashboardLayout activeTab="Profile">
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          contentContainerStyle={styles.scrollContent}
+        >
+          {loading ? (
+            <View style={{ padding: 20 }}>
+              <AccountSkeleton />
+            </View>
+          ) : (
+            <View style={styles.mainContent}>
+              {renderHeader()}
+
+              <Animated.View entering={FadeInDown.duration(600).delay(200)} layout={Layout.springify()}>
+                <ProfileCard 
+                  {...userData}
+                  onEdit={() => setIsEditModalVisible(true)}
+                />
+              </Animated.View>
+
+              <SectionTitle title="PREFERENCES" delay={300} />
+              <Animated.View entering={FadeInDown.duration(600).delay(400)} style={[styles.settingsGroup, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <PreferenceItem 
+                  title="Push Notifications"
+                  subtitle="Receive real-time alerts for bookings"
+                  value={notifications}
+                  onValueChange={setNotifications}
+                />
+                <View style={[styles.rowDivider, { backgroundColor: colors.divider }]} />
+                <PreferenceItem 
+                  title="Biometric Login"
+                  subtitle="Use FaceID or TouchID to access"
+                  value={biometrics}
+                  onValueChange={setBiometrics}
+                />
+                <View style={[styles.rowDivider, { backgroundColor: colors.divider }]} />
+                <PreferenceItem 
+                  title="Dark Mode"
+                  subtitle="Toggle application appearance"
+                  value={isDark}
+                  onValueChange={toggleTheme}
+                />
+              </Animated.View>
+
+              <SectionTitle title="SECURITY & SUPPORT" delay={500} />
+              <Animated.View entering={FadeInDown.duration(600).delay(600)} style={[styles.settingsGroup, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <ActionRow icon={ShieldCheck} title="Password & Security" />
+                <View style={[styles.rowDivider, { backgroundColor: colors.divider }]} />
+                <ActionRow icon={FileText} title="Documents & Policies" />
+                <View style={[styles.rowDivider, { backgroundColor: colors.divider }]} />
+                <ActionRow icon={Headphones} title="Customer Support" />
+              </Animated.View>
+
+              <Animated.View entering={FadeInDown.duration(600).delay(700)}>
+                <TouchableOpacity 
+                  style={[styles.logoutBtn, { backgroundColor: isDark ? 'rgba(255, 69, 58, 0.05)' : 'rgba(255, 69, 58, 0.08)', borderColor: isDark ? 'rgba(255, 69, 58, 0.15)' : 'rgba(255, 69, 58, 0.2)' }]} 
+                  onPress={handleLogout}
+                  activeOpacity={0.8}
+                >
+                  <LogOut size={20} color="#FF453A" />
+                  <Text style={styles.logoutText}>Sign Out</Text>
                 </TouchableOpacity>
-            </View>
-            <View style={[styles.detailsGrid, { backgroundColor: isDark ? '#0C0C0E' : '#EAEAEA', borderColor: colors.border }]}>
-                <View style={styles.detailItem}>
-                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Email</Text>
-                    <Text style={[styles.detailValue, { color: colors.text }]}>nasir@ofissquare.com</Text>
-                </View>
-                <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-                <View style={[styles.detailItem, { paddingLeft: 16 }]}>
-                    <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Mobile</Text>
-                    <Text style={[styles.detailValue, { color: colors.text }]}>+91 98765 43210</Text>
-                </View>
-            </View>
-        </GlassCard>
+              </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Preferences</Text>
-        <GlassCard style={styles.settingsCard}>
-            <View style={styles.settingRow}>
-                <View style={styles.settingInfo}>
-                    <Text style={[styles.settingLabel, { color: colors.text }]}>Push Notifications</Text>
-                    <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>Receive real-time alerts for bookings</Text>
-                </View>
-                <PremiumToggle value={notifications} onValueChange={setNotifications} />
+              <Text style={[styles.versionText, { color: colors.textMuted }]}>Version 2.4.0 (Build 128)</Text>
             </View>
-            <View style={[styles.settingRow, styles.rowBorder, { borderTopColor: colors.border }]}>
-                <View style={styles.settingInfo}>
-                    <Text style={[styles.settingLabel, { color: colors.text }]}>Biometric Login</Text>
-                    <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>Use FaceID or TouchID to access</Text>
-                </View>
-                <PremiumToggle value={biometrics} onValueChange={setBiometrics} />
-            </View>
-            <View style={[styles.settingRow, styles.rowBorder, { borderTopColor: colors.border }]}>
-                <View style={styles.settingInfo}>
-                    <Text style={[styles.settingLabel, { color: colors.text }]}>Dark Mode</Text>
-                    <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>Toggle application appearance</Text>
-                </View>
-                <PremiumToggle value={isDark} onValueChange={() => toggleTheme()} />
-            </View>
-        </GlassCard>
+          )}
+        </ScrollView>
+      </SafeAreaView>
 
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Security & Support</Text>
-        <View style={styles.actionGrid}>
-            <ActionCard icon="lock-closed-outline" label="Password" />
-            <ActionCard icon="document-text-outline" label="Documents" />
-            <ActionCard icon="headset-outline" label="Support" />
-            <ActionCard icon="reader-outline" label="Terms" />
-        </View>
-
-        <PremiumButton 
-            title="Sign Out" 
-            onPress={handleLogout} 
-            type="secondary"
-            style={[styles.logoutBtn, { borderColor: 'rgba(255, 59, 48, 0.3)', backgroundColor: 'rgba(255, 59, 48, 0.05)' }]}
-        />
-        <Text style={styles.versionText}>Version 2.4.0 (Build 128)</Text>
-      </ScrollView>
+      <EditProfileModal 
+        visible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        initialData={userData}
+        onSave={(newData) => setUserData({...userData, ...newData})}
+      />
     </DashboardLayout>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scrollContent: {
-    paddingBottom: 110, 
+    paddingBottom: 120,
+  },
+  mainContent: {
+    padding: 20,
   },
   header: {
-    marginBottom: 28,
+    marginBottom: 32,
   },
-  title: {
-    fontSize: 28,
+  topInfoBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 24,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 11,
     fontFamily: FONTS.bold,
-    letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 13,
+  infoDivider: {
+    width: 1,
+    height: 12,
+    marginHorizontal: 12,
+  },
+  pageTitle: {
+    fontSize: 32,
+    fontFamily: FONTS.bold,
+    letterSpacing: -0.8,
+  },
+  pageSubtitle: {
+    fontSize: 14,
     fontFamily: FONTS.medium,
     marginTop: 4,
   },
-  profileInfoCard: {
-    padding: 24,
-    borderRadius: 24,
-    marginBottom: 32,
-    borderWidth: 1,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  avatarBig: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 138, 0, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 20,
-  },
-  avatarInitial: {
-    fontSize: 22,
-    fontFamily: FONTS.bold,
-    color: COLORS.primary,
-  },
-  userMeta: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  userName: {
-    fontSize: 20,
-    fontFamily: FONTS.bold,
-    letterSpacing: -0.3,
-  },
-  userRole: {
-    fontSize: 13,
-    fontFamily: FONTS.medium,
-    marginTop: 2,
-  },
-  editBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    borderRadius: 12,
-    borderWidth: 1,
-    marginLeft: 16,
-  },
-  editBtnText: {
-    fontSize: 12,
-    fontFamily: FONTS.bold,
-  },
-  detailsGrid: {
-    flexDirection: 'row',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  detailItem: {
-    flex: 1,
-  },
-  detailDivider: {
-    width: 1,
-    height: '100%',
-  },
-  detailLabel: {
-    fontSize: 10,
-    fontFamily: FONTS.bold,
-    letterSpacing: 1,
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
-  detailValue: {
-    fontSize: 14,
-    fontFamily: FONTS.bold,
-  },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: FONTS.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 2,
     marginBottom: 16,
+    marginTop: 8,
     marginLeft: 4,
   },
-  settingsCard: {
-    padding: 0,
-    marginBottom: 28,
-    borderWidth: 1,
+  settingsGroup: {
+    borderRadius: 24,
+    padding: 8,
+    borderWidth: 1.5,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  settingRow: {
+  rowDivider: {
+    height: 1,
+    marginHorizontal: 16,
+  },
+  actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
   },
-  rowBorder: {
-    borderTopWidth: 1,
+  actionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
-  settingInfo: {
-    flex: 1,
-    paddingRight: 20,
-  },
-  settingLabel: {
-    fontSize: 15,
-    fontFamily: FONTS.bold,
-    marginBottom: 4,
-  },
-  settingDesc: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: FONTS.medium,
-  },
-  customTrack: {
-    width: 50,
-    height: 30,
-    borderRadius: 15,
-    padding: 3,
+  iconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
-  customThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  actionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 40,
-  },
-  actionCardWrapper: {
-    width: '48%',
-  },
-  actionCard: {
-    borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  actionIcon: {
-    marginBottom: 12,
-  },
-  actionLabel: {
-    fontSize: 13,
+  actionTitle: {
+    fontSize: 15,
     fontFamily: FONTS.bold,
   },
   logoutBtn: {
-    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 58,
+    borderRadius: 29,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 10,
+  },
+  logoutText: {
+    color: '#FF453A',
+    fontFamily: FONTS.bold,
+    fontSize: 16,
   },
   versionText: {
     textAlign: 'center',
-    color: '#777777',
     fontSize: 11,
     fontFamily: FONTS.medium,
-    marginTop: 24,
+    marginTop: 32,
   },
 });
 
-export default ProfileScreen;
+export default AccountSettingsScreen;

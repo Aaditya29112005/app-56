@@ -18,6 +18,7 @@ import BookingCard from '../components/DayPass/BookingCard';
 import BookingDetailsModal from '../components/DayPass/BookingDetailsModal';
 import SearchBar from '../components/DayPass/SearchBar';
 import FilterDropdown from '../components/FilterDropdown';
+import BookingSkeleton from '../components/MeetingRoom/BookingSkeleton';
 
 const STATUS_OPTS = [
   { label: 'All Status', value: null },
@@ -90,7 +91,15 @@ const DayPassBookingsScreen = ({ navigation }) => {
   const { colors, isDark } = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const [selectedStatus, setSelectedStatus] = useState(STATUS_OPTS[0]);
   const [activeBooking, setActiveBooking] = useState(null);
   const [showStatusFilter, setShowStatusFilter] = useState(false);
@@ -172,21 +181,25 @@ const DayPassBookingsScreen = ({ navigation }) => {
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={{ flex: 1 }}>
-        <FlatList 
-          data={filteredBookings}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <BookingCard item={item} onView={setActiveBooking} />
-          )}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>No bookings found</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>Try adjusting your filters or search.</Text>
-            </View>
-          }
-        />
+        {loading ? (
+          <BookingSkeleton />
+        ) : (
+          <FlatList 
+            data={filteredBookings}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <BookingCard item={item} onView={setActiveBooking} />
+            )}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>No bookings found</Text>
+                <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>Try adjusting your filters or search.</Text>
+              </View>
+            }
+          />
+        )}
         
         <PaginationUI />
       </KeyboardAvoidingView>

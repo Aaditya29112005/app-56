@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import postApi from '../services/postApi';
 import Haptics from '../utils/Haptics';
 
-export const usePosts = (initialFilter = 'All') => {
+export const usePosts = (initialFilter = 'Event') => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);

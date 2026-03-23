@@ -19,7 +19,7 @@ import GlassCard from '../components/GlassCard';
 import Haptics from '../utils/Haptics';
 
 const EventCard = ({ id, title, description, category, date, time, location, status, onEdit, onDelete, index }) => {
-    const { colors } = useTheme();
+    const { colors, isDark } = useTheme();
     const scale = useSharedValue(1);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -41,36 +41,36 @@ const EventCard = ({ id, title, description, category, date, time, location, sta
                     </View>
                 </View>
 
-                <View style={styles.infoRow}>
-                    <View style={styles.infoItem}>
+                <View style={[styles.infoRow, { flexWrap: 'wrap' }]}>
+                    <View style={[styles.infoItem, { backgroundColor: isDark ? '#1F1F1F' : '#F1F3F5' }]}>
                         <Icon name="calendar-outline" size={14} color="#FF8A00" />
                         <Text style={[styles.infoText, { color: colors.text }]} numberOfLines={1}>{date} • {time}</Text>
                     </View>
-                    <View style={styles.infoItem}>
+                    <View style={[styles.infoItem, { backgroundColor: isDark ? '#1F1F1F' : '#F1F3F5' }]}>
                         <Icon name="location-outline" size={14} color="#FF8A00" />
                         <Text style={[styles.infoText, { color: colors.text }]} numberOfLines={1}>{location}</Text>
                     </View>
                 </View>
 
-                <View style={styles.cardFooter}>
-                    <View style={[styles.statusPill, { backgroundColor: isPublished ? 'rgba(255,138,0,0.12)' : '#1F1F1F' }]}>
-                        <Text style={[styles.statusPillText, { color: isPublished ? '#FF8A00' : '#A1A1AA' }]}>{status}</Text>
-                    </View>
+                    <View style={[styles.cardFooter, { borderTopColor: isDark ? '#1F1F1F' : '#E5E5EA' }]}>
+                        <View style={[styles.statusPill, { backgroundColor: isPublished ? 'rgba(255,138,0,0.12)' : '#1F1F1F' }]}>
+                            <Text style={[styles.statusPillText, { color: isPublished ? '#FF8A00' : '#A1A1AA' }]}>{status}</Text>
+                        </View>
 
-                    <View style={styles.cardActions}>
-                        <Animated.View style={animatedStyle}>
-                            <TouchableOpacity 
-                                style={styles.editBtn}
-                                onPressIn={() => {
-                                    Haptics.impactLight();
-                                    scale.value = withSpring(0.95);
-                                }}
-                                onPressOut={() => (scale.value = withSpring(1))}
-                                onPress={() => onEdit(id)}
-                            >
-                                <Icon name="create-outline" size={18} color="#A1A1AA" />
-                            </TouchableOpacity>
-                        </Animated.View>
+                        <View style={styles.cardActions}>
+                            <Animated.View style={animatedStyle}>
+                                <TouchableOpacity 
+                                    style={[styles.editBtn, { backgroundColor: isDark ? '#1F1F1F' : '#F1F3F5' }]}
+                                    onPressIn={() => {
+                                        Haptics.impactLight();
+                                        scale.value = withSpring(0.95);
+                                    }}
+                                    onPressOut={() => (scale.value = withSpring(1))}
+                                    onPress={() => onEdit(id)}
+                                >
+                                    <Icon name="create-outline" size={18} color="#A1A1AA" />
+                                </TouchableOpacity>
+                            </Animated.View>
 
                         <TouchableOpacity 
                             style={styles.deleteBtn}
@@ -121,7 +121,7 @@ const EventsScreen = ({ navigation }) => {
     status: 'All Status',
     sort: 'Date ↓'
   });
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const [events, setEvents] = React.useState([
     { 
@@ -183,7 +183,7 @@ const EventsScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.toolsRow}>
-        <View style={[styles.searchBox, { backgroundColor: '#111111' }]}>
+        <View style={[styles.searchBox, { backgroundColor: colors.surface }]}>
             <Icon name="search-outline" size={18} color={colors.textMuted} />
             <TextInput 
                 placeholder="Search by title or description..." 
@@ -255,7 +255,7 @@ const EventsScreen = ({ navigation }) => {
                 <Text style={[styles.modalDesc, { color: colors.textSecondary }]}>This action cannot be undone. Are you sure you want to remove this event?</Text>
                 
                 <View style={styles.modalActions}>
-                    <TouchableOpacity style={styles.cancelBtn} onPress={() => setIsDeleteModalVisible(false)}>
+                    <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: isDark ? '#1F1F1F' : '#F1F3F5' }]} onPress={() => setIsDeleteModalVisible(false)}>
                         <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.confirmBtn} onPress={confirmDelete}>
@@ -275,6 +275,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 32,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
+    marginRight: 16,
   },
   createBtnText: {
     color: COLORS.black,
@@ -312,7 +314,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 52,
     borderWidth: 1,
-    borderColor: '#1F1F1F',
   },
   searchTextInput: {
     flex: 1,
@@ -419,7 +420,6 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F1F1F',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
@@ -434,7 +434,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#1F1F1F',
     paddingTop: 16,
   },
   statusPill: {
@@ -455,7 +454,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#1F1F1F',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -505,7 +503,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     borderRadius: 16,
-    backgroundColor: '#1F1F1F',
     alignItems: 'center',
     justifyContent: 'center',
   },

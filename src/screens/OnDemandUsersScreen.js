@@ -9,13 +9,9 @@ import { SPACING, BORDER_RADIUS } from '../theme/spacing';
 import UserRowCard from '../components/Guests/UserRowCard';
 import GuestDetailsModal from '../components/Guests/GuestDetailsModal';
 import PaginationBar from '../components/Guests/PaginationBar';
+import { SkeletonList } from '../components/Skeleton/SkeletonLayouts';
 
-const GUESTS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
-  textSecondary: '#9CA3AF'
-};
+
 
 const ITEMS_PER_PAGE = 5;
 
@@ -33,7 +29,15 @@ const OnDemandUsersScreen = () => {
   const { colors } = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [debouncedQuery, setDebouncedQuery] = useState('');
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -74,19 +78,19 @@ const OnDemandUsersScreen = () => {
       <View style={styles.header}>
          <View style={styles.headerTop}>
             <View style={{flex: 1}}>
-              <Text style={styles.title}>On-demand Users (Guests)</Text>
-              <Text style={styles.subtitle}>Search and manage one-time/guest users</Text>
+              <Text style={[styles.title, { color: colors.text }]}>On-demand Users (Guests)</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Search and manage one-time/guest users</Text>
             </View>
          </View>
 
          {/* Search Filter input group */}
          <View style={styles.searchRow}>
-            <View style={styles.searchInputWrap}>
-               <Search size={18} color={GUESTS_THEME.textSecondary} />
+            <View style={[styles.searchInputWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+               <Search size={18} color={colors.textSecondary} />
                <TextInput 
-                 style={styles.searchInput}
+                 style={[styles.searchInput, { color: colors.text }]}
                  placeholder="Search by name, email..."
-                 placeholderTextColor={GUESTS_THEME.textSecondary}
+                 placeholderTextColor={colors.textSecondary}
                  value={searchQuery}
                  onChangeText={setSearchQuery}
                  autoCorrect={false}
@@ -104,22 +108,28 @@ const OnDemandUsersScreen = () => {
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-        <FlatList 
-          data={displayedGuests}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <UserRowCard user={item} onView={setSelectedUser} />
-          )}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Search size={48} color={GUESTS_THEME.border} style={{marginBottom: SPACING.md}} />
-              <Text style={styles.emptyTitle}>No guests found</Text>
-              <Text style={styles.emptySubtitle}>Try adjusting your search criteria.</Text>
-            </View>
-          }
-        />
+        {loading ? (
+          <View style={styles.listContent}>
+             <SkeletonList horizontal items={5} />
+          </View>
+        ) : (
+          <FlatList 
+            data={displayedGuests}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <UserRowCard user={item} onView={setSelectedUser} />
+            )}
+            ListEmptyComponent={
+               <View style={styles.emptyContainer}>
+                <Search size={48} color={colors.textMuted} style={{marginBottom: SPACING.md}} />
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>No guests found</Text>
+                <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>Try adjusting your search criteria.</Text>
+              </View>
+            }
+          />
+        )}
 
         {/* Pagination Sticky Bottom */}
         <View style={styles.paginationWrap}>
@@ -146,17 +156,15 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   header: { paddingHorizontal: SPACING.md, paddingTop: SPACING.md, paddingBottom: SPACING.md },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SPACING.xl },
-  title: { fontFamily: FONTS.bold, fontSize: 24, color: '#FFF', marginBottom: 2 },
-  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.sm, color: GUESTS_THEME.textSecondary },
+  title: { fontFamily: FONTS.bold, fontSize: 24, marginBottom: 2 },
+  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.sm },
   
   searchRow: { flexDirection: 'row', gap: SPACING.sm },
   searchInputWrap: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: GUESTS_THEME.card,
     borderWidth: 1,
-    borderColor: GUESTS_THEME.border,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: SPACING.md
@@ -166,7 +174,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZE.md,
-    color: '#FFF',
     height: '100%'
   },
   searchBtn: {
@@ -195,13 +202,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 80
   },
-  emptyTitle: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.lg, color: '#FFF', marginBottom: 4 },
-  emptySubtitle: { fontFamily: FONTS.regular, fontSize: FONT_SIZE.sm, color: GUESTS_THEME.textSecondary },
+  emptyTitle: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.lg, marginBottom: 4 },
+  emptySubtitle: { fontFamily: FONTS.regular, fontSize: FONT_SIZE.sm },
   
   paginationWrap: {
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.xl,
-    backgroundColor: '#000000'
   }
 });
 

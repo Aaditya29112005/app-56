@@ -8,6 +8,7 @@ import { SPACING, BORDER_RADIUS } from '../theme/spacing';
 import DashboardLayout from '../components/DashboardLayout';
 import TicketCard from '../components/TicketCard';
 import FilterDropdown from '../components/FilterDropdown';
+import { SkeletonList } from '../components/Skeleton/SkeletonLayouts';
 
 const { width } = Dimensions.get('window');
 
@@ -106,7 +107,15 @@ const TicketsScreen = ({ navigation }) => {
   
   // State
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [activeFilterSheet, setActiveFilterSheet] = useState(null); // 'status', 'priority', 'building', 'sort'
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedPriority, setSelectedPriority] = useState(null);
@@ -260,7 +269,9 @@ const TicketsScreen = ({ navigation }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
-        {filteredTickets.length > 0 ? (
+        {loading ? (
+          <SkeletonList items={4} />
+        ) : filteredTickets.length > 0 ? (
           filteredTickets.map(ticket => (
             <TicketCard 
               key={ticket.id} 

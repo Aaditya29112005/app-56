@@ -14,14 +14,8 @@ import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';
 import { useEventsStore } from '../../store/useEventsStore';
 
-const THEME = {
-  bg: '#000000',
-  card: '#1A1A1A',
-  border: '#1F1F1F',
-  accent: '#f97316',
-};
-
 const RSVPListScreen = ({ navigation, route }) => {
+  const { colors, isDark } = useTheme();
   const { eventId, eventTitle } = route.params;
   const { rsvps } = useEventsStore();
   
@@ -49,16 +43,16 @@ const RSVPListScreen = ({ navigation, route }) => {
   }, [debouncedQuery, rsvps, eventId]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: THEME.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <X size={24} color="#FFF" />
+          <X size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.titleArea}>
-          <Text style={[styles.title, { color: '#FFF' }]}>RSVPs</Text>
-          <Text style={[styles.subtitle, { color: '#94A3B8' }]} numberOfLines={1}>{eventTitle}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>RSVPs</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]} numberOfLines={1}>{eventTitle}</Text>
         </View>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{eventRSVPs.length}</Text>
@@ -67,12 +61,12 @@ const RSVPListScreen = ({ navigation, route }) => {
 
       {/* Search */}
       <View style={styles.searchSection}>
-        <View style={[styles.searchBox, { backgroundColor: THEME.card, borderColor: THEME.border }]}>
-          <Search size={18} color="#64748B" />
+        <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Search size={18} color={colors.textMuted} />
           <TextInput 
-            style={[styles.searchInput, { color: '#FFF' }]}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search attendees..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -84,31 +78,31 @@ const RSVPListScreen = ({ navigation, route }) => {
         data={eventRSVPs}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <View style={[styles.rsvpCard, { backgroundColor: THEME.card, borderColor: THEME.border }]}>
+          <View style={[styles.rsvpCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.rsvpHeader}>
               <View style={styles.avatar}>
-                <User size={20} color="#F97316" />
+                <User size={20} color={colors.primary} />
               </View>
               <View style={styles.info}>
-                <Text style={[styles.name, { color: '#FFF' }]}>{item.name}</Text>
-                <Text style={[styles.role, { color: '#94A3B8' }]}>{item.role} @ {item.company}</Text>
+                <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
+                <Text style={[styles.role, { color: colors.textSecondary }]}>{item.role} @ {item.company}</Text>
               </View>
             </View>
             
             <View style={styles.detailsRow}>
               <View style={styles.detailItem}>
-                <Mail size={12} color="#64748B" />
-                <Text style={styles.detailText}>{item.email}</Text>
+                <Mail size={12} color={colors.textMuted} />
+                <Text style={[styles.detailText, { color: colors.textSecondary }]}>{item.email}</Text>
               </View>
               <View style={styles.detailItem}>
-                <Phone size={12} color="#64748B" />
-                <Text style={styles.detailText}>{item.phone}</Text>
+                <Phone size={12} color={colors.textMuted} />
+                <Text style={[styles.detailText, { color: colors.textSecondary }]}>{item.phone}</Text>
               </View>
             </View>
 
-            <View style={styles.clientTag}>
-               <Briefcase size={12} color="#F97316" />
-               <Text style={styles.clientText}>Client: {item.client}</Text>
+            <View style={[styles.clientTag, { borderTopColor: colors.border }]}>
+               <Briefcase size={12} color={colors.primary} />
+               <Text style={[styles.clientText, { color: colors.primary }]}>Client: {item.client}</Text>
             </View>
           </View>
         )}
@@ -116,9 +110,9 @@ const RSVPListScreen = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Users size={48} color={THEME.border} />
-            <Text style={styles.emptyTitle}>No RSVPs yet</Text>
-            <Text style={styles.emptySubtitle}>When people register for this event, they will appear here.</Text>
+            <Users size={48} color={colors.border} />
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>No RSVPs yet</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>When people register for this event, they will appear here.</Text>
           </View>
         }
       />
@@ -148,9 +142,9 @@ const styles = StyleSheet.create({
   role: { fontFamily: FONTS.medium, fontSize: 12, marginTop: 2 },
   detailsRow: { flexDirection: 'row', gap: 16, marginBottom: 12 },
   detailItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  detailText: { fontFamily: FONTS.medium, fontSize: 12, color: '#64748B' },
-  clientTag: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
-  clientText: { fontFamily: FONTS.bold, fontSize: 11, color: '#F97316', textTransform: 'uppercase' },
+  detailText: { fontFamily: FONTS.medium, fontSize: 12 },
+  clientTag: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1 },
+  clientText: { fontFamily: FONTS.bold, fontSize: 11, textTransform: 'uppercase' },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingTop: 100 },
   emptyTitle: { fontFamily: FONTS.bold, fontSize: 18, color: '#FFF', marginTop: 16 },
   emptySubtitle: { fontFamily: FONTS.medium, fontSize: 14, color: '#64748B', textAlign: 'center', marginTop: 8 },

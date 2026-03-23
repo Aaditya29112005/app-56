@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable, TouchableOpacity } from 'react-native';
-import { Eye, CheckCircle, UserCheck } from 'lucide-react-native';
+import { Eye, CheckCircle, UserCheck, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { FONTS, FONT_SIZE } from '../../theme/typography';
 import { SPACING, BORDER_RADIUS } from '../../theme/spacing';
@@ -29,8 +29,8 @@ const VisitorCardRow = ({ visitor, onRowPress, onCheckIn, onApprove, onViewDetai
       <Animated.View style={[
         styles.cardContainer,
         {
-          backgroundColor: isDark ? '#1A1A1A' : colors.surfaceElevated,
-          borderColor: isDark ? colors.border : 'transparent',
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
           borderWidth: isDark ? 1 : 0,
           transform: [{ scale: scaleAnim }]
         }
@@ -68,12 +68,12 @@ const VisitorCardRow = ({ visitor, onRowPress, onCheckIn, onApprove, onViewDetai
               </TouchableOpacity>
             )}
             {/* Always show check in or maybe conditionally based on approval. Assuming always for now per UI spec */}
-            <TouchableOpacity onPress={() => onCheckIn(visitor)} style={[styles.iconBtn, { backgroundColor: `${colors.success}15` }]}>
-               <UserCheck size={16} color={colors.success} />
+            <TouchableOpacity onPress={() => onCheckIn(visitor)} style={[styles.iconBtn, { backgroundColor: colors.primary }]}>
+               <CheckCircle size={16} color="#FFF" />
             </TouchableOpacity>
             
-            <TouchableOpacity onPress={() => onViewDetails(visitor)} style={[styles.iconBtn, { backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0' }]}>
-               <Eye size={16} color={colors.textSecondary} />
+            <TouchableOpacity onPress={() => onViewDetails(visitor)} style={[styles.iconBtn, { backgroundColor: colors.surfaceElevated }]}>
+               <ChevronRight size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>

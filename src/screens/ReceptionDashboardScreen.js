@@ -14,6 +14,7 @@ import FilterDropdown from '../components/FilterDropdown';
 import CalendarDatePicker from '../components/Reception/CalendarDatePicker';
 import CheckInModal from '../components/Reception/CheckInModal';
 import VisitorDetailsModal from '../components/Reception/VisitorDetailsModal';
+import { SkeletonList, SkeletonBox } from '../components/Skeleton/SkeletonLayouts';
 
 // Mock Data
 const INITIAL_VISITORS = [
@@ -79,6 +80,14 @@ const ReceptionDashboardScreen = ({ navigation }) => {
   // Modals
   const [checkInVisitor, setCheckInVisitor] = useState(null);
   const [detailsVisitor, setDetailsVisitor] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Stats derivation
   const totalVisitors = visitors.length;
@@ -145,7 +154,7 @@ const ReceptionDashboardScreen = ({ navigation }) => {
       <View style={styles.headerContainer}>
         <View style={styles.topHeader}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuBtn}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()} style={[styles.menuBtn, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
                <Menu size={24} color={colors.text} />
             </TouchableOpacity>
             <View style={styles.headerTextWrap}>
@@ -154,7 +163,7 @@ const ReceptionDashboardScreen = ({ navigation }) => {
             </View>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={[styles.iconBtn, { backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0' }]}>
+            <TouchableOpacity style={[styles.iconBtn, { backgroundColor: colors.surfaceElevated }]}>
                <RefreshCw size={18} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity 
@@ -183,11 +192,23 @@ const ReceptionDashboardScreen = ({ navigation }) => {
         
         {/* Stats */}
         <View style={styles.statsRow}>
-          <StatsCard title="Total Visitors" count={totalVisitors} />
-          <View style={{ width: SPACING.sm }} />
-          <StatsCard title="Invited" count={invited} />
-          <View style={{ width: SPACING.sm }} />
-          <StatsCard title="Checked In" count={checkedIn} />
+          {loading ? (
+            <>
+              <SkeletonBox width="31%" height={80} borderRadius={16} />
+              <View style={{ width: SPACING.sm }} />
+              <SkeletonBox width="31%" height={80} borderRadius={16} />
+              <View style={{ width: SPACING.sm }} />
+              <SkeletonBox width="31%" height={80} borderRadius={16} />
+            </>
+          ) : (
+            <>
+              <StatsCard title="Total Visitors" count={totalVisitors} />
+              <View style={{ width: SPACING.sm }} />
+              <StatsCard title="Invited" count={invited} />
+              <View style={{ width: SPACING.sm }} />
+              <StatsCard title="Checked In" count={checkedIn} />
+            </>
+          )}
         </View>
 
         {/* Tabs */}
@@ -225,7 +246,9 @@ const ReceptionDashboardScreen = ({ navigation }) => {
 
         {/* List */}
         <View style={styles.listContainer}>
-          {filteredData.length > 0 ? (
+          {loading ? (
+            <SkeletonList items={3} />
+          ) : filteredData.length > 0 ? (
             filteredData.map(visitor => (
               <VisitorCardRow
                 key={visitor.id}
@@ -290,7 +313,7 @@ const styles = StyleSheet.create({
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   iconBtn: { width: 36, height: 36, borderRadius: BORDER_RADIUS.md, justifyContent: 'center', alignItems: 'center' },
   primaryBtn: { flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: SPACING.md, borderRadius: BORDER_RADIUS.md },
-  menuBtn: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#1A1A1A', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#1F1F1F' },
+  menuBtn: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   primaryBtnText: { color: '#FFF', fontFamily: FONTS.bold, fontSize: FONT_SIZE.sm, marginLeft: 6 },
   searchBox: { flexDirection: 'row', alignItems: 'center', height: 44, borderWidth: 1, borderRadius: BORDER_RADIUS.md, paddingHorizontal: SPACING.md },
   searchInput: { flex: 1, marginLeft: SPACING.sm, fontFamily: FONTS.regular, fontSize: FONT_SIZE.md, height: '100%' },

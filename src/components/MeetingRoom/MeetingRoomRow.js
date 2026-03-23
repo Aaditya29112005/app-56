@@ -10,8 +10,10 @@ import ActionButtons from './ActionButtons';
 import { COLORS } from '../../theme/colors';
 import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';
+import { useTheme } from '../../context/ThemeContext';
 
 const MeetingRoomRow = ({ booking, onAction }) => {
+  const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -36,7 +38,7 @@ const MeetingRoomRow = ({ booking, onAction }) => {
   const currentStatus = statusColors[booking.status] || statusColors.BOOKED;
 
   return (
-    <Animated.View style={[styles.card, animatedStyle]}>
+    <Animated.View style={[styles.card, animatedStyle, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
       <TouchableOpacity 
         activeOpacity={1}
         onPressIn={onPressIn}
@@ -45,21 +47,21 @@ const MeetingRoomRow = ({ booking, onAction }) => {
       >
         {/* Room Info */}
         <View style={styles.section}>
-          <Text style={styles.roomName}>{booking.roomName}</Text>
-          <Text style={styles.capacity}>Capacity: {booking.capacity}</Text>
+          <Text style={[styles.roomName, { color: colors.text }]}>{booking.roomName}</Text>
+          <Text style={[styles.capacity, { color: colors.textSecondary }]}>Capacity: {booking.capacity}</Text>
         </View>
 
         {/* Member */}
         <View style={styles.section}>
-          <Text style={styles.memberName}>{booking.memberName}</Text>
-          <Text style={styles.location}>{booking.memberLocation}</Text>
+          <Text style={[styles.memberName, { color: colors.text }]}>{booking.memberName}</Text>
+          <Text style={[styles.location, { color: colors.textSecondary }]}>{booking.memberLocation}</Text>
         </View>
 
         {/* Timing */}
         <View style={styles.section}>
-          <Text style={styles.timeText}>{booking.startTime}</Text>
-          <Text style={styles.label}>at</Text>
-          <Text style={styles.timeText}>{booking.endTime.split('at')[1] || booking.endTime}</Text>
+          <Text style={[styles.timeText, { color: colors.text }]}>{booking.startTime}</Text>
+          <Text style={[styles.label, { color: colors.textMuted }]}>at</Text>
+          <Text style={[styles.timeText, { color: colors.text }]}>{booking.endTime.split('at')[1] || booking.endTime}</Text>
         </View>
 
         {/* Status Badge (Vertical) */}
@@ -71,7 +73,7 @@ const MeetingRoomRow = ({ booking, onAction }) => {
 
         {/* Invoice */}
         <View style={styles.invoiceSection}>
-          <Text style={styles.invoiceStatus}>{booking.invoiceStatus}</Text>
+          <Text style={[styles.invoiceStatus, { color: colors.textMuted }]}>{booking.invoiceStatus}</Text>
         </View>
 
         {/* Action Buttons */}
@@ -85,9 +87,7 @@ const MeetingRoomRow = ({ booking, onAction }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A1C1F',
     borderBottomWidth: 1,
-    borderBottomColor: '#2C2E33',
   },
   container: {
     flexDirection: 'row',
@@ -102,34 +102,28 @@ const styles = StyleSheet.create({
   roomName: {
     fontFamily: FONTS.bold,
     fontSize: 15,
-    color: '#FFF',
     marginBottom: 4,
   },
   capacity: {
     fontFamily: FONTS.medium,
     fontSize: 12,
-    color: '#64748B',
   },
   memberName: {
     fontFamily: FONTS.bold,
     fontSize: 15,
-    color: '#FFF',
     marginBottom: 4,
   },
   location: {
     fontFamily: FONTS.medium,
     fontSize: 12,
-    color: '#64748B',
   },
   timeText: {
     fontFamily: FONTS.bold,
     fontSize: 13,
-    color: '#FFF',
   },
   label: {
     fontFamily: FONTS.medium,
     fontSize: 11,
-    color: '#64748B',
     marginVertical: 2,
   },
   statusBadge: {
@@ -152,7 +146,6 @@ const styles = StyleSheet.create({
   invoiceStatus: {
     fontFamily: FONTS.bold,
     fontSize: 13,
-    color: '#64748B',
   },
   actions: {
     flex: 2,

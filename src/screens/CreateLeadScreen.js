@@ -8,29 +8,24 @@ import { SPACING, BORDER_RADIUS } from '../theme/spacing';
 
 import RadioGroup from '../components/Leads/RadioGroup';
 
-const LEADS_THEME = {
-  bg: '#000000',
-  card: '#151922',
-  border: '#1E2430',
-  textSecondary: '#9CA3AF'
-};
 
-const FormInput = ({ label, value, onChangeText, placeholder, keyboardType = 'default', required }) => (
+
+const FormInput = ({ label, value, onChangeText, placeholder, keyboardType = 'default', required, colors }) => (
   <View style={styles.inputWrap}>
-    <Text style={styles.label}>{label} {required && <Text style={{color: '#EF4444'}}>*</Text>}</Text>
+    <Text style={[styles.label, { color: colors.textSecondary }]}>{label} {required && <Text style={{color: '#EF4444'}}>*</Text>}</Text>
     <TextInput
-      style={styles.input}
+      style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}
-      placeholderTextColor={LEADS_THEME.textSecondary}
+      placeholderTextColor={colors.textSecondary}
       keyboardType={keyboardType}
     />
   </View>
 );
 
 const CreateLeadScreen = ({ navigation }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   // Form State
   const [form, setForm] = useState({
@@ -75,35 +70,35 @@ const CreateLeadScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: LEADS_THEME.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
-          <ChevronLeft size={24} color="#FFF" />
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
+          <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={{flex: 1}}>
-           <Text style={styles.title}>Create Lead</Text>
-           <Text style={styles.subtitle}>Step 1: Initial Enquiry</Text>
+           <Text style={[styles.title, { color: colors.text }]}>Create Lead</Text>
+           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Step 1: Initial Enquiry</Text>
         </View>
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
         <ScrollView style={styles.formArea} showsVerticalScrollIndicator={false}>
            
-           <View style={styles.card}>
+           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={styles.row}>
                 <View style={{flex: 1, marginRight: SPACING.sm}}>
-                  <FormInput label="First Name" required value={form.firstName} onChangeText={(v) => handleChange('firstName', v)} placeholder="John" />
+                  <FormInput label="First Name" required value={form.firstName} onChangeText={(v) => handleChange('firstName', v)} placeholder="John" colors={colors} />
                 </View>
                 <View style={{flex: 1, marginLeft: SPACING.sm}}>
-                  <FormInput label="Last Name" required value={form.lastName} onChangeText={(v) => handleChange('lastName', v)} placeholder="Doe" />
+                  <FormInput label="Last Name" required value={form.lastName} onChangeText={(v) => handleChange('lastName', v)} placeholder="Doe" colors={colors} />
                 </View>
               </View>
               
-              <FormInput label="Email Address" required value={form.email} onChangeText={(v) => handleChange('email', v)} placeholder="john@example.com" keyboardType="email-address" />
-              <FormInput label="Phone Number" required value={form.phone} onChangeText={(v) => handleChange('phone', v)} placeholder="+1 555-0000" keyboardType="phone-pad" />
-              <FormInput label="Company Name" value={form.company} onChangeText={(v) => handleChange('company', v)} placeholder="Acme Corp" />
+              <FormInput label="Email Address" required value={form.email} onChangeText={(v) => handleChange('email', v)} placeholder="john@example.com" keyboardType="email-address" colors={colors} />
+              <FormInput label="Phone Number" required value={form.phone} onChangeText={(v) => handleChange('phone', v)} placeholder="+1 555-0000" keyboardType="phone-pad" colors={colors} />
+              <FormInput label="Company Name" value={form.company} onChangeText={(v) => handleChange('company', v)} placeholder="Acme Corp" colors={colors} />
               
               <View style={styles.inputWrap}>
                  <Text style={styles.label}>Gender</Text>
@@ -118,16 +113,16 @@ const CreateLeadScreen = ({ navigation }) => {
                  />
               </View>
 
-              <FormInput label="Address" value={form.address} onChangeText={(v) => handleChange('address', v)} placeholder="Enter full address" />
-              <FormInput label="Pincode" value={form.pincode} onChangeText={(v) => handleChange('pincode', v)} placeholder="000000" keyboardType="numeric" />
+              <FormInput label="Address" value={form.address} onChangeText={(v) => handleChange('address', v)} placeholder="Enter full address" colors={colors} />
+              <FormInput label="Pincode" value={form.pincode} onChangeText={(v) => handleChange('pincode', v)} placeholder="000000" keyboardType="numeric" colors={colors} />
               
            </View>
 
         </ScrollView>
 
-        <View style={styles.footer}>
-           <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={() => navigation.goBack()}>
-             <Text style={styles.cancelTxt}>Cancel</Text>
+        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
+           <TouchableOpacity style={[styles.btn, styles.cancelBtn, { borderColor: colors.border, backgroundColor: colors.surface }]} onPress={() => navigation.goBack()}>
+             <Text style={[styles.cancelTxt, { color: colors.text }]}>Cancel</Text>
            </TouchableOpacity>
            <TouchableOpacity style={[styles.btn, styles.continueBtn, { backgroundColor: colors.primary }]} onPress={handleContinue}>
              <Text style={styles.continueTxt}>Continue</Text>
@@ -148,25 +143,21 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.md,
     paddingBottom: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: LEADS_THEME.border
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: LEADS_THEME.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md
   },
-  title: { fontFamily: FONTS.bold, fontSize: 20, color: '#FFF', marginBottom: 2 },
-  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs, color: LEADS_THEME.textSecondary },
+  title: { fontFamily: FONTS.bold, fontSize: 20, marginBottom: 2 },
+  subtitle: { fontFamily: FONTS.medium, fontSize: FONT_SIZE.xs },
   
   formArea: { flex: 1, padding: SPACING.md },
   card: {
-    backgroundColor: LEADS_THEME.card,
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
     borderRadius: BORDER_RADIUS.xl,
     padding: SPACING.lg,
     marginBottom: 40
@@ -176,19 +167,15 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZE.sm,
-    color: LEADS_THEME.textSecondary,
     marginBottom: 8
   },
   input: {
     height: 48,
-    backgroundColor: LEADS_THEME.bg,
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
     borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: SPACING.md,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZE.md,
-    color: '#FFF'
   },
   
   footer: {
@@ -196,8 +183,6 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     paddingBottom: 30,
     borderTopWidth: 1,
-    borderTopColor: LEADS_THEME.border,
-    backgroundColor: LEADS_THEME.bg,
     gap: SPACING.md
   },
   btn: {
@@ -209,10 +194,8 @@ const styles = StyleSheet.create({
   },
   cancelBtn: {
     borderWidth: 1,
-    borderColor: LEADS_THEME.border,
-    backgroundColor: LEADS_THEME.card
   },
-  cancelTxt: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.md, color: '#FFF' },
+  cancelTxt: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.md },
   continueBtn: {},
   continueTxt: { fontFamily: FONTS.bold, fontSize: FONT_SIZE.md, color: '#FFF' }
 });

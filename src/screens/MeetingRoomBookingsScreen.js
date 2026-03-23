@@ -5,10 +5,10 @@ import {
   StyleSheet, 
   FlatList, 
   TouchableOpacity, 
-  SafeAreaView, 
   StatusBar,
   Dimensions
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -22,10 +22,13 @@ import CreateBookingModal from '../modals/CreateBookingModal';
 import BookingDetailsModal from '../modals/BookingDetailsModal';
 
 import { FONTS } from '../theme/typography';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const MeetingRoomBookingsScreen = () => {
+  const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,12 +68,12 @@ const MeetingRoomBookingsScreen = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingRight: insets.right + 12 }]}>
       <StatusBar barStyle="light-content" />
       <View style={styles.headerTop}>
-        <View>
-          <Text style={styles.title}>Meeting Room Bookings</Text>
-          <Text style={styles.subtitle}>View meeting room reservations</Text>
+        <View style={styles.titleContainer}>
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>Meeting Room Bookings</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]} numberOfLines={1}>View meeting room reservations</Text>
         </View>
         <TouchableOpacity 
           style={styles.createBtn}
@@ -78,7 +81,7 @@ const MeetingRoomBookingsScreen = () => {
           activeOpacity={0.8}
         >
           <Plus size={18} color="#FFF" />
-          <Text style={styles.createBtnText}>Create Booking</Text>
+          <Text style={styles.createBtnText} numberOfLines={1} ellipsizeMode="tail">+ Create Booking</Text>
         </TouchableOpacity>
       </View>
 
@@ -90,7 +93,7 @@ const MeetingRoomBookingsScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {renderHeader()}
       
       {loading ? (
@@ -114,8 +117,8 @@ const MeetingRoomBookingsScreen = () => {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No bookings found</Text>
-              <Text style={styles.emptySubText}>Try adjusting your filters or search query.</Text>
+             <Text style={[styles.emptyText, { color: colors.text }]}>No bookings found</Text>
+               <Text style={[styles.emptySubText, { color: colors.textMuted }]}>Try adjusting your filters or search query.</Text>
             </View>
           }
         />
@@ -141,7 +144,6 @@ const MeetingRoomBookingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
   },
   header: {
     padding: 20,
@@ -152,17 +154,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    width: '100%',
+  },
+  titleContainer: {
+    flex: 1,
+    marginRight: 12,
   },
   title: {
     fontFamily: FONTS.bold,
     fontSize: 24,
-    color: '#FFF',
     letterSpacing: -0.5,
   },
   subtitle: {
     fontFamily: FONTS.medium,
     fontSize: 14,
-    color: '#64748B',
     marginTop: 2,
   },
   createBtn: {
@@ -170,9 +175,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FF8A00',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    height: 44,
     borderRadius: 30,
     gap: 6,
+    maxWidth: '50%',
+    flexShrink: 1,
     shadowColor: '#FF8A00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -201,13 +208,11 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: FONTS.bold,
     fontSize: 18,
-    color: '#FFF',
     marginBottom: 8,
   },
   emptySubText: {
     fontFamily: FONTS.medium,
     fontSize: 14,
-    color: '#64748B',
     textAlign: 'center',
     paddingHorizontal: 40,
   }

@@ -116,7 +116,7 @@ const CreatePostModal = ({ visible, onClose, onPostCreated }) => {
                     <Animated.View 
                         entering={SlideInDown.springify().damping(15)}
                         exiting={SlideOutDown}
-                        style={[styles.modalContent, { backgroundColor: isDark ? '#121212' : '#FFF' }]}
+                        style={[styles.modalContent, { backgroundColor: colors.surface }]}
                     >
                         {/* Header */}
                         <View style={[styles.header, { borderBottomColor: colors.border }]}>
@@ -129,7 +129,7 @@ const CreatePostModal = ({ visible, onClose, onPostCreated }) => {
                                 disabled={!text.trim() || isPosting}
                                 style={[
                                     styles.postBtn, 
-                                    { backgroundColor: text.trim() ? '#FF8A00' : 'rgba(255,138,0,0.3)' }
+                                    { backgroundColor: text.trim() ? colors.primary : colors.primaryMuted }
                                 ]}
                             >
                                 <Text style={styles.postBtnText}>{isPosting ? 'Posting...' : 'Post'}</Text>
