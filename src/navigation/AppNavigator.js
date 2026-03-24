@@ -4,6 +4,7 @@ import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import CreateAccountScreen from '../screens/Auth/CreateAccountScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import DrawerNavigator from './DrawerNavigator';
 import CreateTicketScreen from '../screens/CreateTicketScreen';
 import TicketDetailsScreen from '../screens/TicketDetailsScreen';
@@ -26,6 +27,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={CreateAccountScreen} />
       <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="Drawer" component={DrawerNavigator} />
       <Stack.Screen name="CreateTicket" component={CreateTicketScreen} />
       <Stack.Screen name="TicketDetails" component={TicketDetailsScreen} />

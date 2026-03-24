@@ -7,19 +7,18 @@ import Animated, {
     FadeInDown 
 } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
-import { COLORS } from '../theme/colors';
-import { FONTS } from '../theme/typography';
-import PremiumInput from '../components/PremiumInput';
-import PremiumButton from '../components/PremiumButton';
-import GlassCard from '../components/GlassCard';
-import LogoHeader from '../components/LogoHeader';
-import Haptics from '../utils/Haptics';
+import { COLORS } from '../../theme/colors';
+import { FONTS } from '../../theme/typography';
+import PremiumInput from '../../components/PremiumInput';
+import PremiumButton from '../../components/PremiumButton';
+import GlassCard from '../../components/GlassCard';
+import LogoHeader from '../../components/LogoHeader';
+import Haptics from '../../utils/Haptics';
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
+const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const bgScale = useSharedValue(1);
@@ -32,16 +31,17 @@ const LoginScreen = ({ navigation }) => {
     transform: [{ scale: bgScale.value }]
   }));
 
-  const isFormValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && password.length > 0;
+  const isFormValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleLogin = () => {
+  const handleResetPassword = () => {
     if (isFormValid) {
       setIsLoading(true);
       Haptics.notificationSuccess();
       setTimeout(() => {
           setIsLoading(false);
-          navigation.replace('Drawer');
-      }, 800);
+          // In a real app, we'd navigate back or to a success screen
+          navigation.goBack();
+      }, 1500);
     }
   };
 
@@ -52,7 +52,7 @@ const LoginScreen = ({ navigation }) => {
       {/* Background Image with Zoom & Blur */}
       <Animated.View style={[StyleSheet.absoluteFill, bgAnimatedStyle]}>
         <Animated.Image 
-          source={require('../assets/images/workspace_bg.png')}
+          source={require('../../assets/images/workspace_bg.png')}
           style={StyleSheet.absoluteFill}
           blurRadius={25}
           resizeMode="cover"
@@ -85,9 +85,9 @@ const LoginScreen = ({ navigation }) => {
           <LogoHeader />
 
           <Animated.View entering={FadeInDown.delay(200).springify()}>
-            <GlassCard style={styles.loginCard}>
-              <Text style={styles.title}>Sign In</Text>
-              <Text style={styles.subtitle}>Access your workspace dashboard</Text>
+            <GlassCard style={styles.card}>
+              <Text style={styles.title}>Forgot Password</Text>
+              <Text style={styles.subtitle}>Enter your email to reset your password</Text>
 
               <View style={styles.form}>
                 <PremiumInput
@@ -96,32 +96,21 @@ const LoginScreen = ({ navigation }) => {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                 />
-                <PremiumInput
-                  placeholder="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={true}
-                />
 
-                <TouchableOpacity 
-                  style={styles.forgotBtn}
-                  onPress={() => navigation.navigate('ForgotPassword')}
-                >
-                  <Text style={styles.forgotText}>Forgot password?</Text>
-                </TouchableOpacity>
+                <View style={styles.spacer} />
 
                 <PremiumButton 
-                  title="Continue to Dashboard" 
-                  onPress={handleLogin} 
-                  style={styles.loginBtn}
+                  title="Send Reset Link" 
+                  onPress={handleResetPassword} 
+                  style={styles.primaryBtn}
                   isLoading={isLoading}
                   disabled={!isFormValid}
                 />
 
                 <View style={styles.footer}>
-                  <Text style={styles.footerText}>New to Ofis Square? </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
-                    <Text style={styles.linkText}>Create Account</Text>
+                  <Text style={styles.footerText}>Remember your password? </Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.linkText}>Sign In</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -150,7 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
-  loginCard: {
+  card: {
     paddingTop: 32,
     paddingBottom: 24,
   },
@@ -169,18 +158,12 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
   },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    marginBottom: 32,
-    marginTop: -8,
+  spacer: {
+    height: 16,
   },
-  forgotText: {
-    color: '#FF8A00',
-    fontFamily: FONTS.bold,
-    fontSize: 14,
-  },
-  loginBtn: {
+  primaryBtn: {
     marginBottom: 24,
+    marginTop: 16,
   },
   footer: {
     flexDirection: 'row',
@@ -208,4 +191,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default LoginScreen;
+export default ForgotPasswordScreen;

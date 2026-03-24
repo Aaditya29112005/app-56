@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
 import CreateAccountScreen from '../screens/Auth/CreateAccountScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import CreateTicketScreen from '../screens/CreateTicketScreen';
 import InviteVisitorScreen from '../screens/InviteVisitorScreen';
 import ImportRFIDScreen from '../screens/ImportRFIDScreen';
@@ -18,6 +19,7 @@ const AuthNavigator = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={CreateAccountScreen} />
       <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="Drawer" component={DrawerNavigator} />
       <Stack.Screen name="CreateTicket" component={CreateTicketScreen} />
       <Stack.Screen name="InviteVisitor" component={InviteVisitorScreen} />
