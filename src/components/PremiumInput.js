@@ -14,7 +14,6 @@ import { BORDER_RADIUS, SPACING } from '../theme/spacing';
 import { useTheme } from '../context/ThemeContext';
 
 const PremiumInput = ({ 
-    label, 
     placeholder, 
     value, 
     onChangeText, 
@@ -27,78 +26,51 @@ const PremiumInput = ({
   const { colors, isDark } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
-  const focusValue = useSharedValue(value ? 1 : 0);
-  const scaleValue = useSharedValue(1);
+  const focusValue = useSharedValue(0);
 
   React.useEffect(() => {
-    focusValue.value = withTiming(error ? 0 : (isFocused || value ? 1 : 0), { duration: 200 });
-  }, [isFocused, error, value]);
+    focusValue.value = withTiming(isFocused ? 1 : 0, { duration: 250 });
+  }, [isFocused]);
 
   const containerStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: scaleValue.value }],
-      borderColor: error ? '#FF3B30' : interpolateColor(
+      borderColor: interpolateColor(
         focusValue.value,
         [0, 1],
-        [colors.border, colors.primary]
+        ['rgba(255, 255, 255, 0.1)', '#FF8A00']
       ),
-      backgroundColor: error ? 'rgba(255, 59, 48, 0.05)' : interpolateColor(
-        focusValue.value,
-        [0, 1],
-        [colors.surface, isDark ? 'rgba(255, 138, 0, 0.05)' : 'rgba(255, 138, 0, 0.1)']
-      ),
-      shadowColor: focusValue.value === 1 ? colors.primary : '#000',
+      backgroundColor: '#0A0A0A',
+      shadowColor: '#FF8A00',
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: interpolate(
-          focusValue.value,
-          [0, 1],
-          [isDark ? 0 : 0.03, isDark ? 0.15 : 0.08]
-      ),
+      shadowOpacity: interpolate(focusValue.value, [0, 1], [0, 0.3]),
       shadowRadius: 10,
     };
   });
 
-  const labelStyle = useAnimatedStyle(() => {
-      return {
-          transform: [
-              { translateY: interpolate(focusValue.value, [0, 1], [0, -22]) },
-              { translateX: interpolate(focusValue.value, [0, 1], [0, -4]) },
-              { scale: interpolate(focusValue.value, [0, 1], [1, 0.85]) }
-          ],
-          color: focusValue.value === 1 ? colors.primary : colors.textSecondary
-      };
-  });
-
   const handleFocus = () => {
       setIsFocused(true);
-      scaleValue.value = withSpring(1.01);
       if (onFocus) onFocus();
   };
 
   const handleBlur = () => {
       setIsFocused(false);
-      scaleValue.value = withSpring(1);
       if (onBlur) onBlur();
   };
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.inputContainer, containerStyle]}>
-        {label && (
-            <Animated.View style={[styles.floatingLabelContainer, labelStyle]}>
-                <Text style={styles.label}>{label}</Text>
-            </Animated.View>
-        )}
         <TextInput
-          style={[styles.input, { paddingTop: label ? 16 : 0, color: colors.text }]}
-          placeholder={isFocused ? placeholder : ''}
-          placeholderTextColor={colors.textMuted}
+          style={[styles.input, { color: '#FFFFFF' }]}
+          placeholder={placeholder}
+          placeholderTextColor="rgba(255, 255, 255, 0.3)"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          autoCapitalize="none"
         />
         {secureTextEntry && (
             <TouchableOpacity 
@@ -108,7 +80,7 @@ const PremiumInput = ({
                 <Icon 
                     name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} 
                     size={20} 
-                    color="#8A8A8A" 
+                    color="rgba(255, 255, 255, 0.4)" 
                 />
             </TouchableOpacity>
         )}
@@ -120,29 +92,19 @@ const PremiumInput = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: SPACING.md,
+    marginBottom: 16,
   },
   inputContainer: {
     borderWidth: 1,
-    borderRadius: 14, // Refined rounding
-    height: 56, // Slightly taller for floating label
-    paddingHorizontal: SPACING.md,
+    borderRadius: 16,
+    height: 56,
+    paddingHorizontal: 16,
     justifyContent: 'center',
-  },
-  floatingLabelContainer: {
-      position: 'absolute',
-      left: 16,
-      top: 18,
-      zIndex: 1,
-  },
-  label: {
-    color: '#8A8A8A',
-    fontSize: FONT_SIZE.md,
-    fontFamily: FONTS.medium,
+    shadowOffset: { width: 0, height: 4 },
   },
   input: {
-    fontSize: FONT_SIZE.md,
-    fontFamily: FONTS.regular,
+    fontSize: 16,
+    fontFamily: FONTS.medium,
     padding: 0,
     flex: 1,
   },

@@ -21,10 +21,19 @@ const Haptics = {
   success: () => {
     ReactNativeHapticFeedback.trigger('notificationSuccess', options);
   },
+  notificationSuccess: () => {
+    ReactNativeHapticFeedback.trigger('notificationSuccess', options);
+  },
   warning: () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', options);
   },
+  notificationWarning: () => {
+    ReactNativeHapticFeedback.trigger('notificationWarning', options);
+  },
   error: () => {
+    ReactNativeHapticFeedback.trigger('notificationError', options);
+  },
+  notificationError: () => {
     ReactNativeHapticFeedback.trigger('notificationError', options);
   },
 };

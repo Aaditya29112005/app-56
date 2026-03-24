@@ -1,54 +1,43 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar, Dimensions } from 'react-native';
+import Animated, { 
+    useSharedValue, 
+    useAnimatedStyle, 
+    withTiming, 
+    FadeInDown 
+} from 'react-native-reanimated';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
-import { FONTS, FONT_SIZE } from '../theme/typography';
-import { SPACING } from '../theme/spacing';
+import { FONTS } from '../theme/typography';
 import PremiumInput from '../components/PremiumInput';
 import PremiumButton from '../components/PremiumButton';
-import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
-import OfisLogo from '../components/OfisLogo';
+import LogoHeader from '../components/LogoHeader';
+import Haptics from '../utils/Haptics';
+
+const { width, height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+  const bgScale = useSharedValue(1);
 
-  const isFormValid = emailRegex.test(email) && password.length > 0;
+  React.useEffect(() => {
+    bgScale.value = withTiming(1.05, { duration: 4000 });
+  }, []);
 
-  const validate = () => {
-    let newErrors = {};
-    
-    if (!email.trim()) {
-      newErrors.email = 'Email address is required';
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
+  const bgAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bgScale.value }]
+  }));
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const updateEmail = (val) => {
-    setEmail(val);
-    if (errors.email) setErrors({...errors, email: null});
-  };
-
-  const updatePassword = (val) => {
-    setPassword(val);
-    if (errors.password) setErrors({...errors, password: null});
-  };
+  const isFormValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && password.length > 0;
 
   const handleLogin = () => {
-    if (validate()) {
+    if (isFormValid) {
       setIsLoading(true);
+      Haptics.notificationSuccess();
       setTimeout(() => {
           setIsLoading(false);
           navigation.replace('Drawer');
@@ -57,36 +46,61 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <Layout scrollable={true} backgroundColor="#000000">
-      <View style={styles.container}>
-        <Animated.View 
-            entering={FadeIn.duration(800).delay(200)} 
-            style={styles.header}
-        >
-            <OfisLogo scale={0.7} />
-        </Animated.View>
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      
+      {/* Background Image with Zoom & Blur */}
+      <Animated.View style={[StyleSheet.absoluteFill, bgAnimatedStyle]}>
+        <Animated.Image 
+          source={require('../assets/images/workspace_bg.png')}
+          style={StyleSheet.absoluteFill}
+          blurRadius={25}
+          resizeMode="cover"
+        />
+      </Animated.View>
 
-        <Animated.View entering={SlideInDown.duration(800).springify().damping(18)}>
+      {/* Dark Overlay Tint */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.7)' }]} />
+
+      {/* Gradient Overlay for Depth */}
+      <View style={StyleSheet.absoluteFill}>
+        <Svg height="100%" width="100%">
+          <Defs>
+            <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="black" stopOpacity="0.85" />
+              <Stop offset="0.3" stopColor="black" stopOpacity="0" />
+              <Stop offset="0.7" stopColor="black" stopOpacity="0" />
+              <Stop offset="1" stopColor="black" stopOpacity="0.95" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#grad)" />
+        </Svg>
+      </View>
+
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.content}>
+          <LogoHeader />
+
+          <Animated.View entering={FadeInDown.delay(200).springify()}>
             <GlassCard style={styles.loginCard}>
               <Text style={styles.title}>Sign In</Text>
               <Text style={styles.subtitle}>Access your workspace dashboard</Text>
 
               <View style={styles.form}>
                 <PremiumInput
-                  label="Email Address"
-                  placeholder="name@company.com"
+                  placeholder="Email Address"
                   value={email}
-                  onChangeText={updateEmail}
+                  onChangeText={setEmail}
                   keyboardType="email-address"
-                  error={errors.email}
                 />
                 <PremiumInput
-                  label="Password"
-                  placeholder="••••••••"
+                  placeholder="Password"
                   value={password}
-                  onChangeText={updatePassword}
+                  onChangeText={setPassword}
                   secureTextEntry={true}
-                  error={errors.password}
                 />
 
                 <TouchableOpacity style={styles.forgotBtn}>
@@ -94,16 +108,16 @@ const LoginScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <PremiumButton 
-                    title="Continue to Dashboard" 
-                    onPress={handleLogin} 
-                    style={styles.loginBtn}
-                    isLoading={isLoading}
-                    disabled={!isFormValid}
+                  title="Continue to Dashboard" 
+                  onPress={handleLogin} 
+                  style={styles.loginBtn}
+                  isLoading={isLoading}
+                  disabled={!isFormValid}
                 />
 
                 <View style={styles.footer}>
-                  <Text style={styles.footerText}>New to Ofissquare? </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                  <Text style={styles.footerText}>New to Ofis Square? </Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
                     <Text style={styles.linkText}>Create Account</Text>
                   </TouchableOpacity>
                 </View>
@@ -111,114 +125,81 @@ const LoginScreen = ({ navigation }) => {
             </GlassCard>
             
             <Text style={styles.legalText}>
-                By signing in, you agree to our Terms of Service and Privacy Policy.
+              By signing in, you agree to our Terms of Service and Privacy Policy.
             </Text>
-        </Animated.View>
-      </View>
-    </Layout>
+          </Animated.View>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 80,
-    paddingHorizontal: SPACING.lg,
-    alignItems: 'center',
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  keyboardView: {
     flex: 1,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  logoSquare: {
-    width: 64,
-    height: 64,
-    backgroundColor: COLORS.primary,
-    borderRadius: 20,
-    alignItems: 'center',
+  content: {
+    flex: 1,
     justifyContent: 'center',
-    marginBottom: SPACING.md,
-    shadowColor: '#FF8A00',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-  },
-  logoText: {
-    color: COLORS.white,
-    fontSize: 32,
-    fontFamily: FONTS.bold,
-  },
-  brandTitle: {
-    color: COLORS.white,
-    fontSize: FONT_SIZE.lg,
-    fontFamily: FONTS.bold,
-    letterSpacing: 4,
+    paddingHorizontal: 24,
   },
   loginCard: {
-    width: '100%',
-    maxWidth: 400,
-    padding: SPACING.xl,
-    backgroundColor: '#1A1A1A', // Softer black gradient equivalent
-    borderWidth: 1,
-    borderColor: '#1F1F1F',
-    borderRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.5,
-    shadowRadius: 30,
-    elevation: 20,
+    paddingTop: 32,
+    paddingBottom: 24,
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontFamily: FONTS.bold,
-    color: COLORS.white,
+    color: '#FFFFFF',
     marginBottom: 8,
-    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: FONT_SIZE.md,
+    fontSize: 16,
     fontFamily: FONTS.medium,
-    color: '#8A8A8A',
-    marginBottom: SPACING.xl,
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 32,
   },
   form: {
     width: '100%',
   },
   forgotBtn: {
     alignSelf: 'flex-end',
-    marginBottom: 28,
-    marginTop: -4,
+    marginBottom: 32,
+    marginTop: -8,
   },
   forgotText: {
     color: '#FF8A00',
     fontFamily: FONTS.bold,
-    fontSize: 13,
+    fontSize: 14,
   },
   loginBtn: {
-    height: 56,
+    marginBottom: 24,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 28,
   },
   footerText: {
-    color: '#8A8A8A',
+    color: 'rgba(255, 255, 255, 0.5)',
     fontFamily: FONTS.medium,
-    fontSize: FONT_SIZE.md,
+    fontSize: 15,
   },
   linkText: {
     color: '#FF8A00',
     fontFamily: FONTS.bold,
-    fontSize: FONT_SIZE.md,
+    fontSize: 15,
   },
   legalText: {
     marginTop: 48,
-    color: '#555555',
+    color: 'rgba(255, 255, 255, 0.2)',
     fontSize: 12,
     textAlign: 'center',
     lineHeight: 18,
-    maxWidth: 300,
+    paddingHorizontal: 20,
     fontFamily: FONTS.medium,
     alignSelf: 'center',
   }

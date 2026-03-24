@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -11,30 +11,28 @@ import { FONTS, FONT_SIZE } from '../theme/typography';
 import { BORDER_RADIUS, SPACING } from '../theme/spacing';
 import Haptics from '../utils/Haptics';
 
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-const PremiumButton = ({ title, onPress, style, type = 'primary', isLoading = false, disabled = false }) => {
+const PremiumButton = ({ title, onPress, style, isLoading = false, disabled = false }) => {
   const scale = useSharedValue(1);
-  const pressed = useSharedValue(0);
 
   const reanimatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: withSpring(scale.value, { damping: 15, stiffness: 200 }) }],
-      opacity: withTiming(pressed.value || isLoading || disabled ? 0.6 : 1, { duration: 150 }),
+      transform: [{ scale: withSpring(scale.value, { damping: 12, stiffness: 200 }) }],
+      opacity: disabled ? 0.6 : 1,
     };
   });
 
-  const handlePressIn = useCallback(() => {
+  const handlePressIn = () => {
     if (isLoading || disabled) return;
-    scale.value = 0.97;
-    pressed.value = 1;
-  }, [isLoading]);
+    scale.value = 0.96;
+  };
 
-  const handlePressOut = useCallback(() => {
-    if (isLoading || disabled) return;
+  const handlePressOut = () => {
     scale.value = 1;
-    pressed.value = 0;
-  }, [isLoading, disabled]);
+  };
 
   const handlePress = () => {
       if (isLoading || disabled) return;
@@ -49,22 +47,24 @@ const PremiumButton = ({ title, onPress, style, type = 'primary', isLoading = fa
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={isLoading || disabled}
-      style={[
-        styles.button,
-        type === 'primary' ? styles.primary : styles.secondary,
-        reanimatedStyle,
-        style
-      ]}
+      style={[styles.button, reanimatedStyle, style]}
     >
+      <View style={StyleSheet.absoluteFill}>
+          <Svg height="100%" width="100%">
+              <Defs>
+                  <LinearGradient id="btnGrad" x1="0" y1="0" x2="1" y2="0">
+                      <Stop offset="0" stopColor="#FF8A00" />
+                      <Stop offset="1" stopColor="#FFA733" />
+                  </LinearGradient>
+              </Defs>
+              <Rect width="100%" height="100%" rx={28} fill="url(#btnGrad)" />
+          </Svg>
+      </View>
+      
       {isLoading ? (
-          <ActivityIndicator color={type === 'primary' ? COLORS.white : COLORS.primary} />
+          <ActivityIndicator color={COLORS.white} />
       ) : (
-          <Text style={[
-            styles.text,
-            type === 'primary' ? styles.primaryText : styles.secondaryText
-          ]}>
-            {title}
-          </Text>
+          <Text style={styles.text}>{title}</Text>
       )}
     </AnimatedTouchableOpacity>
   );
@@ -72,37 +72,22 @@ const PremiumButton = ({ title, onPress, style, type = 'primary', isLoading = fa
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.xl,
-    borderRadius: 14, // Refined
+    height: 58,
+    borderRadius: 29, // Perfect pill
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    overflow: 'hidden',
+    shadowColor: '#FF8A00',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 15,
     elevation: 8,
   },
-  primary: {
-    backgroundColor: '#FF8A00', // Explicit Elite Orange
-  },
-  secondary: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: '#2A2A2A',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
   text: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: FONTS.bold,
-  },
-  primaryText: {
     color: COLORS.white,
-  },
-  secondaryText: {
-    color: COLORS.white,
+    letterSpacing: 0.5,
   },
 });
 

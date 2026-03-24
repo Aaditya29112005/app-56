@@ -3,25 +3,24 @@ import { View, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { BORDER_RADIUS, SHADOWS } from '../theme/spacing';
 
-const GlassCard = ({ children, style, level = 'medium' }) => {
+const GlassCard = ({ children, style }) => {
   const { colors, isDark } = useTheme();
 
   return (
     <View style={[
       styles.glassContainer,
       { 
-        backgroundColor: colors.surface, 
-        borderColor: isDark ? colors.border : 'transparent',
-        borderWidth: isDark ? 1 : 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
         shadowColor: '#000',
-        shadowOffset: isDark ? { width: 0, height: 20 } : { width: 0, height: 4 },
-        shadowOpacity: isDark ? 0.5 : 0.05,
-        shadowRadius: isDark ? 30 : 10,
-        elevation: isDark ? 20 : 3
+        shadowOffset: { width: 0, height: 20 },
+        shadowOpacity: 0.4,
+        shadowRadius: 40,
+        elevation: 10
       },
       style
     ]}>
-      <View style={[styles.blurOverlay, { backgroundColor: colors.glassBackground }]} />
       <View style={styles.content}>
         {children}
       </View>
@@ -31,16 +30,13 @@ const GlassCard = ({ children, style, level = 'medium' }) => {
 
 const styles = StyleSheet.create({
   glassContainer: {
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 16,
   },
-  blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-  },
   content: {
-    padding: 16,
+    padding: 24,
   },
 });
 

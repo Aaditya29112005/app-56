@@ -6,7 +6,8 @@ import Animated, {
     useAnimatedScrollHandler,
     interpolate,
     Extrapolate,
-    withTiming
+    withTiming,
+    interpolateColor
 } from 'react-native-reanimated';
 import { COLORS } from '../theme/colors';
 import { FONTS } from '../theme/typography';
@@ -59,18 +60,13 @@ const PaginationDot = ({ index, scrollX }) => {
         return {
             width: widthAnimation,
             opacity: opacityAnimation,
-            backgroundColor: scrollX.value >= (index - 0.5) * width && scrollX.value <= (index + 0.5) * width ? '#FF8A00' : '#3A3A3C'
+            backgroundColor: colorAnimation
         };
     });
 
     return <Animated.View style={[styles.dot, animatedDotStyle]} />;
 };
 
-// Polyfill for interpolateColor inside useAnimatedStyle if not imported directly
-const interpolateColor = (value, inputRange, outputRange) => {
-    'worklet';
-    return value >= inputRange[1] ? outputRange[1] : value <= inputRange[0] ? outputRange[0] : outputRange[0];
-};
 
 const OnboardingScreen = ({ navigation }) => {
     const scrollX = useSharedValue(0);
