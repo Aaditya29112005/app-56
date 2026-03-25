@@ -45,6 +45,7 @@ const FilterBtn = ({ label, value, onPress, isActive }) => {
         { 
           backgroundColor: isActive ? `${colors.primary}15` : (isDark ? colors.surfaceElevated : colors.surface),
           borderColor: isActive ? colors.primary : colors.border,
+          alignSelf: 'flex-start'
         }
       ]}
       onPress={onPress}
@@ -56,8 +57,9 @@ const FilterBtn = ({ label, value, onPress, isActive }) => {
           fontFamily: isActive ? FONTS.bold : FONTS.medium
         }
       ]}>
-        {label}{value ? `: ${value}` : ''} <ChevronDown size={14} color={isActive ? colors.primary : colors.textSecondary} style={{marginLeft: 4, marginTop: 2}} />
+        {label}{value ? `: ${value}` : ''}
       </Text>
+      <ChevronDown size={14} color={isActive ? colors.primary : colors.textSecondary} style={{marginLeft: 4}} />
     </TouchableOpacity>
   );
 };
@@ -81,6 +83,11 @@ const ReceptionDashboardScreen = ({ navigation }) => {
   const [checkInVisitor, setCheckInVisitor] = useState(null);
   const [detailsVisitor, setDetailsVisitor] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const handleFilterSelect = (setter) => (option) => {
+    setter(option);
+    setActiveFilterSheet(null);
+  };
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -140,8 +147,8 @@ const ReceptionDashboardScreen = ({ navigation }) => {
   };
 
   const getSheetOptions = () => {
-    if (activeFilterSheet === 'status') return { options: FILTER_STATUSES, title: 'Check-in Status', sel: selectedStatus, set: setSelectedStatus };
-    if (activeFilterSheet === 'client') return { options: FILTER_CLIENTS, title: 'Client', sel: selectedClient, set: setSelectedClient };
+    if (activeFilterSheet === 'status') return { options: FILTER_STATUSES, title: 'Check-in Status', sel: selectedStatus, set: handleFilterSelect(setSelectedStatus) };
+    if (activeFilterSheet === 'client') return { options: FILTER_CLIENTS, title: 'Client', sel: selectedClient, set: handleFilterSelect(setSelectedClient) };
     return { options: [], title: '', sel: null, set: () => {} };
   };
 
@@ -322,7 +329,7 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', paddingHorizontal: SPACING.md, marginBottom: SPACING.lg },
   tabsWrapper: { paddingHorizontal: SPACING.md, marginBottom: SPACING.lg },
   filterSection: { marginBottom: SPACING.lg, paddingLeft: SPACING.md },
-  filterBtn: { flexDirection: 'row', alignItems: 'center', height: 36, borderWidth: 1, borderRadius: BORDER_RADIUS.full, paddingHorizontal: SPACING.md, marginRight: SPACING.sm },
+  filterBtn: { flexDirection: 'row', alignItems: 'center', height: 36, borderWidth: 1, borderRadius: BORDER_RADIUS.full, paddingHorizontal: SPACING.md, marginRight: SPACING.sm, alignSelf: 'flex-start' },
   filterBtnLabel: { fontSize: FONT_SIZE.sm },
   
   listContainer: { paddingHorizontal: SPACING.md },

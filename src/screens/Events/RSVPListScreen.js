@@ -8,7 +8,7 @@ import {
   TextInput 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { X, Search, User, Mail, Phone, Briefcase } from 'lucide-react-native';
+import { X, Search, User, Users, Mail, Phone, Briefcase } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { FONTS } from '../../theme/typography';
 import { SPACING } from '../../theme/spacing';

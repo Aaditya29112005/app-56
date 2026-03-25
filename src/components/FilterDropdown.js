@@ -57,11 +57,37 @@ const FilterDropdown = ({
   }, [visible]);
 
   const handleClose = () => {
-    onClose();
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_HEIGHT,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      onClose();
+    });
   };
 
   const handleSelect = (option) => {
-    onSelect(option);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_HEIGHT,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      onSelect(option);
+    });
   };
 
   const filteredOptions = options.filter(opt => 

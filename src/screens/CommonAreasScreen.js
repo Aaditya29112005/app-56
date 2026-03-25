@@ -297,7 +297,6 @@ const CommonAreasScreen = ({ navigation }) => {
         }
         onClose={() => setActiveFilter(null)}
         onSelect={(opt) => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           if (activeFilter === 'building') setSelectedBuilding(opt);
           else if (activeFilter === 'type') setSelectedType(opt);
           else setSelectedSort(opt);
